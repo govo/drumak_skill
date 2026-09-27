@@ -1,0 +1,8 @@
+{
+  "name": "drumai-preset",
+  "description": "Drum AI PRESET MCP: turn \"the beat I want\" into a PRESET link that imports into the Drum AI drum machine app",
+  "version": "1.0.0",
+  "author": {
+    "name": "Govo Li"
+  }
+}

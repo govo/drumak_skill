@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "drumai-preset": {
+      "type": "http",
+      "url": "${DRUMAI_MCP_URL:-https://c1c1.online/drumai_mcp}/mcp"
+    }
+  }
+}

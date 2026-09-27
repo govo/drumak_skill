@@ -1,0 +1,10 @@
+# Local environment variables: they live only on this machine and never go into the repo.
+# See .env.example for sample values; copy it to .env and edit.
+.env
+.env.local
+.env.*.local
+
+# Do not commit one machine's specific address into a public repo
+*.local.json
+
+.DS_Store
