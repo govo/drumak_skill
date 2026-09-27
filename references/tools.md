@@ -220,7 +220,8 @@ Behavior notes:
 - **`hits` repeats in every bar** (see `footguns.md` item 1).
 - An out-of-range `variation` throws `invalid_variation`.
 
-Returns `{ draftId, derived, voices:[{ index, grids }] }` — **it echoes the grids actually written**; use it to check whether you wrote what you wanted.
+Returns `{ draftId, derived, voices:[{ index, grids }] }` — **it echoes the grids actually written**,
+use it to check whether you wrote what you wanted.
 
 ### 10. `apply_fill_mode`
 
