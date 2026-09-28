@@ -33,7 +33,7 @@ tool responses — wins.
 Check in order and take the **first one that works**:
 
 1. **Are `create_draft`, `set_voice_grid` and friends already in your tool list?**
-   → Call them directly. This is the primary channel: 18 tools, full capability.
+   → Call them directly. This is the primary channel: 19 tools, full capability.
 
 2. **Can you run a local shell?**
    → Use the script channel (same `/mcp` endpoint, same tool registry, identical capability):
@@ -107,6 +107,9 @@ Helpers:
 - You want to hear what a good pattern looks like in this app → `list_reference_presets` +
   `get_reference_preset`
 - The user pasted a `DHP2;...` string and said "tweak this" → `parse_preset`, edit, then `render_preset`
+- The user pasted a `DHP2;...` string and you (or they) just need to **see what it is** — `render_wireframe`
+  draws the pattern as a wireframe score, no draft needed. Use it to read a pattern, compare two of them,
+  or answer "what is this drum part doing". Use `parse_preset` instead when you intend to edit
 - The user explicitly wants a built-in PRESET as the starting point → `create_draft` with `fromPresetId`,
   but **it copies the trigger grid only** (velocities and the master chain do not come along), and
   `bars` is forced to 1 with `name` not changeable. To get more bars, follow the path in footguns item 3
@@ -325,7 +328,8 @@ out a separate copy of the payload text. The link *is* the payload; let the page
 | `update_draft` | Change transport, voice parameters, master chain, variation copy and clear |
 | `get_draft` / `validate_draft` / `list_drafts` / `delete_draft` | Read back / validate / list / delete |
 | `render_preset` | **Produce the link** (optionally with `preview` and `diagnostics`) |
-| `parse_preset` | Parse DHP2 share text / a DHP3 payload / a full link |
+| `parse_preset` | Parse DHP2 share text / a DHP3 payload / a full link → editable `spec` |
+| `render_wireframe` | Same input, read-only: draw it as a wireframe score so you or the user can see the pattern |
 
 Full parameters, return values, and error codes for every tool are in `references/tools.md`.
 Writing traps that are known to produce wrong patterns are in `references/footguns.md` — worth a scan
@@ -333,14 +337,18 @@ before you start.
 
 ## 8. Reference files
 
-- `references/tools.md` — parameters, returns, and error semantics for the 18 tools
+- `references/tools.md` — parameters, returns, and error semantics for the 19 tools
 - `references/footguns.md` — the writing-trap list (each entry gives the correct form)
 - `references/channels.md` — how to reach the service over each of the three channels, plus protocol details
+- `references/setup.md` — for humans: requirements, installing the skill, configuration, the script channel and
+  its exit codes, self-hosting, and troubleshooting
 - `references/recipes.md` — end-to-end recipes (house / boom bap / trap / multi-bar from a built-in PRESET)
   with the actually-run call sequences
 - `references/samples.md` — decoded real exports drawn as wireframe scores, starting with the
-  `cellsPerQuarter: 8` double-bass sample; also documents how to read a wireframe score
+  `cellsPerQuarter: 8` double-bass sample; also documents how to read a wireframe score. That format is
+  exactly what `render_wireframe` returns in `score`
 - `scripts/call.sh` — the JSON-RPC call script for non-MCP clients
-- `README.md` — for humans: install, dependencies, configuration, troubleshooting (not needed by the AI)
+- `README.md` — for humans: what Drum AI is, how to download it, how to install this skill, and a FAQ
+  (not needed by the AI); the technical half of it lives in `references/setup.md`
 - `.mcp.json` / `.claude-plugin/plugin.json` — the MCP service declaration; configuration details live there, not here
 - `.env.example` — environment variable template; copy it to `.env` to use

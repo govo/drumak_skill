@@ -11,6 +11,8 @@ Two things to keep in mind when you take a grid out of here:
 - Feed a grid to `set_voice_grid` as the `triggers` string. The wireframe below is drawn with bar and
   beat separators so a human or a model can read it; **the separators are not part of the string**.
   Delete them and what is left is exactly `bars × stepsPerBar` characters of `x` and `-`.
+- This is the same format the **`render_wireframe`** tool returns in its `score` field, so any pasted
+  `DHP2;...` blob — or a payload of your own — can be drawn in this shape on demand.
 
 ## How to read a wireframe score
 

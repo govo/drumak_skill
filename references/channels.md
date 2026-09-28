@@ -1,6 +1,6 @@
 # Three channels: how to connect to this service
 
-All three channels go through the **same tool registry** (the 18 tools registered in the same `mcp.ts`),
+All three channels go through the **same tool registry** (the 19 tools registered in the same `mcp.ts`),
 with identical capabilities; the only difference is "how far your client can go". Follow the order in the first section of SKILL.md and pick the first one that works.
 
 Service endpoints at a glance (the default address is `https://c1c1.online/drumai_mcp`, already declared in the `.mcp.json`
@@ -10,14 +10,14 @@ that ships with this skill; see `.env` when switching to a self-hosted service):
 | --- | --- | --- |
 | `/mcp` | POST | MCP protocol endpoint (tool channel) |
 | `/p?p=<payload>` | GET | Landing page, the link the user opens |
-| `/p.txt?p=<payload>` | GET | Legacy-format output, for older App versions that do not support DHP3 yet |
+| `/p.txt?p=<payload>` | GET | Plain-text DHP2 output, for scripts. No link to it from the landing page |
 | `/healthz` | GET | Health check, returns the version and kit count |
 
 Smoke check:
 
 ```bash
 curl -s https://c1c1.online/drumai_mcp/healthz
-# {"ok":true,"version":"0.1.0","kits":24,"presets":22,"styleTemplates":8,"tools":18}
+# {"ok":true,"version":"0.1.0","kits":24,"presets":22,"styleTemplates":8,"tools":19}
 ```
 
 ---

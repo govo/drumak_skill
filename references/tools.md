@@ -1,4 +1,4 @@
-# Tool Reference: Parameters, Return Values, and Error Semantics of the 18 Tools
+# Tool Reference: Parameters, Return Values, and Error Semantics of the 19 Tools
 
 The authoritative source is the schema returned by the server's `tools/list` (`bash scripts/call.sh --list` to see the names).
 This document adds what the schema does not show: default values, actual behavior, and **the parts that bite**.
@@ -316,7 +316,7 @@ The full meaning of `draft_not_found` is "does not exist **or** has expired"; on
 
 ---
 
-## 4. Output tools (2)
+## 4. Output tools (3)
 
 ### 17. `render_preset`
 
@@ -358,6 +358,34 @@ Returns `{ ok, source, spec, readable?, diagnostics:{ valid, issues, droppedFiel
   (as well as `lowPass` / `highPass` / `variations` / `chain`).
 - DHP2 **does not carry the bar count**; `bars` is inferred and may differ from the original.
 - When the input contains a `DHPL;` multi-line container, only the 1st entry is parsed, and `notes` says so.
+
+### 19. `render_wireframe`
+
+```
+{ input*: string }        // identical to parse_preset: DHP2/DHPL share text, a DHP3 payload, or a full link
+```
+
+Returns `{ ok, source, score, name, kitId, kitName, bpm, timeSignature, cellsPerQuarter, bars, stepCount, stepsPerBar, stepsPerBeat, voices[], silentVoices[], notes? }`.
+
+Same parser as `parse_preset`, different exit: `parse_preset` hands you an editable `spec`, this one draws the
+**wireframe score** (`score`) so you or the user can see the pattern at a glance. Read-only — it creates no draft
+and changes no state.
+
+```
+        B1  :    :    :    |B2  :    :    :      <- bar ruler
+        1   :2   :3   :4   |1   :2   :3   :4      <- beat ruler
+        ----:----:----:----+----:----:----:----   <- separator row
+Kick    x---:--x-:--x-:----|x---:--x-:--x-:----
+```
+
+- One character per cell: `x` triggers, `-` is silent.
+- `|` (bar line), `:` (beat line) and `+` (bar line in the separator row) are each **one extra column inserted
+  between two cells** — a reading aid, not a cell. Delete every separator and what is left is exactly the
+  `bars × stepsPerBar` character `triggers` string, ready to hand to `set_voice_grid`.
+- `voices[]` holds **only the voices that carry notes** — `index` / `name` / `role` / `triggers` / `hitCount`,
+  plus `ratchets` / `flams` strings when present. Silent voices are named in `silentVoices[]` and are not drawn.
+- The wireframe deliberately shows the trigger cells only: **velocities, ratchets and flams are not drawn**
+  (that would widen a cell). They come out as separate grid strings in `voices[]`, and `notes` flags them.
 
 ---
 

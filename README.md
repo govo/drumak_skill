@@ -1,244 +1,198 @@
-# Drum AI Preset MCP Skill
+# Drum AI — Preset MCP Skill
 
-Let Claude Code, ChatGPT, and other AI clients use Drum AI's PRESET MCP service directly — pick a kit, write the pattern,
-work out ratchet / flam / velocity detail, and produce a clickable import link.
+<p align="center">
+  <a href="https://apps.apple.com/app/id6782609749"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download Drum AI on the App Store" height="40"></a>
+  &nbsp;&nbsp;
+  <a href="https://c1c1.online/drumanalyse/"><img src="https://img.shields.io/badge/Official_Site-c1c1.online%2Fdrumanalyse-1f6feb?style=for-the-badge&logo=safari&logoColor=white" alt="Drum AI official website" height="40"></a>
+</p>
 
-The output is always **a single link**: the user opens it to see the beat preview, then imports it into the drum machine app from that page.
+**English (US)** · [Deutsch](README.de.md) · [Français](README.fr.md) · [繁體中文](README.zh-Hant.md) · [한국어](README.ko.md) · [简体中文](README.zh-Hans.md) · [日本語](README.ja.md) · [Español](README.es.md)
 
-## Directory structure
+Describe a beat in plain language, get back a link, open the link, and the pattern is in your Drum AI drum machine — ready to play, edit, and practise with.
 
-```
-drumak_skill/
-├── SKILL.md                  # main entry point for AI (loaded automatically by Claude Code)
-├── README.md                 # this file, for humans
-├── .claude-plugin/
-│   ├── plugin.json           # plugin manifest: this is what lets the directory carry an MCP server
-│   └── marketplace.json      # marketplace catalog: this is what lets the repo be added by /plugin marketplace add
-├── .mcp.json                 # MCP server declaration (Claude Code reads it from the plugin root)
-├── .env.example              # environment variable sample, copy to .env
-├── .env                      # actual local config (excluded by .gitignore, not committed)
-├── .gitignore                # excludes .env and other local files
-├── references/
-│   ├── tools.md              # precise reference for the 18 MCP tools
-│   ├── footguns.md           # list of writing footguns (18 entries)
-│   ├── channels.md           # how to connect over the three channels
-│   ├── recipes.md            # end-to-end recipes (house / boom bap / trap / rewriting multiple bars from a built-in PRESET)
-│   └── samples.md            # decoded exports drawn as wireframe scores (double bass at 8 cells per beat)
-└── scripts/
-    └── call.sh               # script channel: call a single MCP tool
-```
+This repository is the skill that makes that work. It connects an AI assistant to Drum AI's PRESET service, so the assistant can choose a kit, write the pattern, add the detail, and hand you a link to import.
 
-## Installation
+---
 
-### Claude Code
+## What is Drum AI?
 
-Add this repository as a plugin marketplace, then install the plugin from it:
+**Drum AI is an AI drum machine and practice app for iPhone, iPad, and Mac.** Import a song and it separates the drums, detects the tempo, and turns the result into an editable pattern. From there it is a full drum machine: 24 pro kits, a 16/32-step sequencer, a mixer with compressor and phaser, humanize, and a tempo drill for working a hard passage up to speed.
+
+- **AI drum recognition.** On-device stem separation pulls the kick, snare, hi-hat, and cymbals out of any song you import or record.
+- **24 pro kits, 16/32-step sequencer.** Per-voice level, pan, filter, tune, and decay, with 4/4, 3/4, 6/8, triplets, and blues shuffle.
+- **One-tap pattern generation.** A recognized song becomes an editable pattern you can drag, copy bar by bar, and re-groove.
+- **Tempo Drill.** AB loop, multiple speed segments, count-in, and skip-to-next, made for practising the parts that are too fast.
+- **Free to download.** The free tier covers the drum machine and the practice features; the AI recognition features carry weekly limits. An optional Drum AI Pro subscription removes them.
+- **One app, three devices.** iPhone, iPad, and Mac share the same project file.
+
+### Download Drum AI
+
+| | |
+| --- | --- |
+| App Store (iPhone, iPad, Mac) | <https://apps.apple.com/app/id6782609749> |
+| Official website | <https://c1c1.online/drumanalyse/> |
+
+One App Store listing covers all three devices, and the same project file opens on each. Pro is an optional subscription; the app itself is free.
+
+---
+
+## What this skill does
+
+This repository does not contain the app. It is a **skill for AI assistants** (Claude Code, and any client that speaks MCP). Installing it gives the assistant a direct line to Drum AI's PRESET service, which is the same sequencing engine the app uses.
+
+What that means in practice:
+
+- You say what you want — "make me a 140 BPM trap beat with a rolling hi-hat", "give me a boom bap groove at 90 BPM", "write a double bass metal pattern".
+- The assistant picks a kit, writes the pattern voice by voice, and works out the detail: velocity accents, ratchets, flams, groove, humanize.
+- It hands you **one link**. Open the link, look at the preview, and import the pattern into Drum AI.
+
+You can also go the other way: paste a pattern you already have in the app, and the assistant will read it, explain what the drums are doing, and rework it.
+
+**What it cannot do:** the assistant cannot install the app, open it, or import the pattern for you. Importing is one tap on your own device, from the link.
+
+### Install this skill
+
+In Claude Code, two commands:
 
 ```
 /plugin marketplace add govo/drumak_skill
 /plugin install drumai-preset@drumai
 ```
 
-That is the whole install. The plugin carries its own `.mcp.json`, so **the MCP server registers automatically** — there is
-no address to fill in and no config file to edit.
+That is the whole install. The plugin carries its own MCP server declaration, so the service registers automatically — there is no address to fill in and no config file to edit.
 
-(Outside a session the same two steps are `claude plugin marketplace add govo/drumak_skill` and
-`claude plugin install drumai-preset@drumai`, which is what an AI assistant runs when you ask it to install this for you.)
+Then just describe the beat you want. Run `/mcp` to confirm the server is connected.
 
-Once installed:
+**Other MCP clients** (Claude Desktop, Cursor, and others): add this block to the client's own configuration.
 
-- Saying "make a 140 BPM beat with a trap kit" triggers this skill;
-- `/mcp` shows the server `plugin:drumai-preset:drumai-preset`;
-- Tools are exposed as `mcp__plugin_drumai-preset_drumai-preset__<tool name>`.
-
-`claude plugin list` should show `drumai-preset@drumai` as enabled. To pick up new versions later, run
-`claude plugin marketplace update drumai`; to disable temporarily, `claude plugin disable drumai-preset@drumai`.
-
-#### Alternative: clone into your skills directory
-
-If you would rather have the files as a plain checkout you can read and edit:
-
-```bash
-git clone https://github.com/govo/drumak_skill.git ~/.claude/skills/drumai-preset
+```json
+{
+  "mcpServers": {
+    "drumai-preset": {
+      "type": "http",
+      "url": "https://c1c1.online/drumai_mcp/mcp"
+    }
+  }
+}
 ```
 
-**The target directory has to be named exactly `drumai-preset`.** Claude Code requires a skill directory name to match the
-`name` field in `SKILL.md`, and that name may only contain `a-z`, `0-9` and `-`. A checkout in a differently-named directory
-will not load.
+**No MCP client at all?** There is a shell script that reaches the same service, and a plain JSON-RPC path. Requirements, configuration, the script interface, and troubleshooting are in [references/setup.md](references/setup.md).
 
-Loaded this way the plugin id is `drumai-preset@skills-dir`, and the `.mcp.json` inside it takes effect with it — so the MCP
-server registers automatically here too, with no extra configuration.
+---
 
-If you already have a checkout somewhere else (for example a working copy you develop in), symlink it in instead of cloning:
+## Quick facts
 
-```bash
-ln -s /absolute/path/to/your/checkout ~/.claude/skills/drumai-preset
-```
-
-The symlink name is what takes effect, so it must also be `drumai-preset`. Delete the symlink to uninstall.
-
-### Other clients
-
-Clients other than Claude Code do not have the `${CLAUDE_SKILL_DIR}` variable; replace it with the absolute path of this skill
-directory. The `${DRUMAI_MCP_URL:-...}` form with a default value in `.mcp.json` is not supported by every client either — if
-yours does not support it, hardcode the address. You need to register the server in the client's own config; see `references/channels.md`.
-
-For clients like ChatGPT that cannot read local files, see "For remote AI clients" below.
-
-## Requirements
-
-**The default address is the public deployment at `https://c1c1.online/drumai_mcp` — it works out of the box, with no need to run your own server.**
-
-- **Node.js >= 20**. `scripts/call.sh` uses node to assemble JSON and parse responses.
-- The script channel needs only `curl` + `node`; no extra packages to install.
-
-Smoke check:
-
-```bash
-curl -s https://c1c1.online/drumai_mcp/healthz
-# {"ok":true,"version":"0.1.0","kits":24,"presets":22,"styleTemplates":8,"tools":18}
-```
-
-### Running your own server
-
-Only needed if you are changing the server code or want to run everything on your own machine. The server source lives in the `mcp/` directory of the drummy repository:
-
-```bash
-cd <drummy>/mcp
-npm install
-npm run dev          # local development, listens on port 8787 by default
-```
-
-Once it is running, put the address in `.env` (see below), or override it on the spot with `DRUMAI_MCP_URL`.
-
-## Configuration
-
-The address is configured in exactly one place: **the `DRUMAI_MCP_URL` environment variable**. If it is not set, the default
-public address is used; the `.env` in this directory is the on-disk version of that address.
-
-```bash
-cp .env.example .env      # first time
-```
-
-Contents of `.env`:
-
-```
-DRUMAI_MCP_URL=https://c1c1.online/drumai_mcp
-```
-
-The value can be a bare address or a full endpoint (the script appends `/mcp` itself).
-
-Resolution order: **the `DRUMAI_MCP_URL` environment variable > `.env` > the default `https://c1c1.online/drumai_mcp`**.
-
-How each of the two channels obtains this value:
-
-| Channel | Who resolves it |
+| | |
 | --- | --- |
-| MCP tools | `${DRUMAI_MCP_URL:-https://c1c1.online/drumai_mcp}` in `.mcp.json`, resolved by Claude Code |
-| Script | `scripts/call.sh` resolves it itself (environment variable first, then `.env`) |
+| App name | Drum AI (App Store: Drum AI: Beat Maker; Chinese store: 鼓机AI) |
+| What it is | AI drum machine and practice app |
+| Platforms | iPhone, iPad, Mac — one app, one shared project file |
+| Price | Free download; optional Drum AI Pro subscription |
+| Free tier | Full drum machine and practice features; weekly limits on AI recognition |
+| Recognition model | LarsNet, running on-device |
+| Drum kits | 24 |
+| Stems separated | Kick, snare, hi-hat, cymbals |
+| App Store | <https://apps.apple.com/app/id6782609749> |
+| Official website | <https://c1c1.online/drumanalyse/> |
+| This repository | Drum AI Preset MCP skill for AI assistants |
+| Skill service | <https://c1c1.online/drumai_mcp> |
+| Output | One import link containing the pattern |
 
-To point at a different service temporarily, no file edits needed:
+---
 
-```bash
-DRUMAI_MCP_URL=https://your-host bash scripts/call.sh list_kits '{}'
+## FAQ
+
+### What is Drum AI?
+
+Drum AI is an app for iPhone, iPad, and Mac that combines a drum machine, AI drum recognition, and a practice tool. You can import a song and let it transcribe the drums into an editable pattern, or write a beat yourself from scratch with the step sequencer and its 24 kits. It is free to download, and all of the AI processing happens on your own device.
+
+### Is Drum AI a drum machine or a transcription app?
+
+It is both, and that is the point. The transcription side listens to audio and produces a pattern; the drum machine side is where that pattern lives, gets edited, and gets played. A pattern the app transcribed and a pattern you wrote by hand are the same kind of object in the same editor, so you can mix the two freely.
+
+### Is Drum AI free?
+
+Drum AI is free to download, and there is no account to create. On the free tier the whole drum machine and the practice features are available; the AI recognition features carry weekly limits — three stem separations and three pattern generations per week, one saved recognition entry, and three of your own PRESETs. Drum AI Pro is an optional subscription that removes every one of those limits.
+
+### What platforms does Drum AI run on?
+
+Drum AI runs on iPhone, iPad, and Mac as one universal app, and the same project file opens on all three. You can sketch a beat on the phone and refine it on the Mac without exporting or syncing anything by hand.
+
+### Does Drum AI work offline? Is my audio uploaded anywhere?
+
+The recognition model, LarsNet, runs on your device, so your audio is not sent to a server to be analysed. You import a file or record with the microphone, and the separation happens locally. Nothing about recognition depends on a network connection.
+
+### What is the Drum AI Preset skill?
+
+The Drum AI Preset skill is this repository. It is an add-on for AI assistants that connects them to Drum AI's PRESET service, so you can describe a beat in words and get back a pattern you can import into the app. It does not replace the app — it feeds it.
+
+### Do I need a server of my own to use this skill?
+
+No. The skill points at a public deployment of Drum AI's PRESET service by default, and it works as-is after installation. Running your own copy is only useful if you are developing against the service.
+
+### Which AI assistants can use this skill?
+
+Any client that supports MCP, including Claude Code, Claude Desktop, and Cursor. Claude Code is the simplest path, because this repository can be installed as a plugin that registers the service automatically. Clients that cannot use MCP but can run a shell can use the bundled script instead. For assistants that can only read text, such as ChatGPT, the pattern-writing works the same once the service address is provided.
+
+### What musical styles can it write?
+
+Any style that a drum machine can express: trap, house, techno, hip-hop and boom bap, funk, breakbeat, shuffle, rock, and metal with double bass. The service ships eight style skeletons as starting points, twenty fill modes for varying a row, and twenty-two reference patterns showing what a finished beat looks like in the app. The assistant adjusts any of them to your description rather than applying them verbatim.
+
+### How many drum kits does it have?
+
+Twenty-four kits, the same ones the app ships with. They cover electronic and acoustic territory, from 808s and trap kits to house, techno, acoustic, and percussion sets. The assistant picks a kit to match the style you asked for, and you can swap kits in the app afterwards without rewriting the pattern.
+
+### Can it transcribe a real song's drums?
+
+Not by itself. Transcription is what the app does: import the song into Drum AI on your device, and it separates the kick, snare, hi-hat, and cymbals and turns them into an editable pattern. The skill is the other half of the loop — once the pattern exists, the assistant can read it, explain what the drums are doing, and rewrite it into a practice chart or a new variation.
+
+### Can the assistant import the pattern into the app for me?
+
+No. The assistant's output is a link. You open the link on your device, look at the preview, and import from that page. Nothing reaches the app until you tap import.
+
+### What does the import link contain?
+
+One link carries the whole pattern: the kit, the tempo, the time signature, and every hit, with its velocity, ratchets, and flams. Opening it shows a preview page; importing from there puts the pattern into Drum AI. There is no file to download and no account involved.
+
+### Is the generated pattern editable in the app?
+
+Yes. What arrives in the app is an ordinary pattern — the same thing you would have programmed by hand. Every hit can be moved, deleted, or re-velocity-ed, the kit can be swapped, and the groove and humanize settings can be changed, all with the app's normal tools.
+
+### What does Drum AI Pro include?
+
+Drum AI Pro is an optional subscription that removes the free tier's limits: unlimited stem separation, unlimited beat recognition and pattern generation, unlimited recognition history, unlimited PRESETs of your own, and unlimited tempo drill entries, segments, and launches. The drum machine and the practice features work the same on both tiers.
+
+### What is a PRESET in Drum AI?
+
+A PRESET is a saved drum pattern: the kit, the transport settings, and the grid of hits. PRESETs are what you share and import. The preview link this skill produces is a PRESET in transit — it carries the pattern from the assistant into the app.
+
+---
+
+## Repository layout
+
+```
+drumai_skill/
+├── SKILL.md                  # main entry point for the AI assistant
+├── README.md                 # this file, for people
+├── README.<lang>.md          # the same document in other languages
+├── .claude-plugin/           # plugin and marketplace manifests
+├── .mcp.json                 # MCP server declaration
+├── .env.example              # environment variable sample
+├── references/               # detailed notes for the assistant
+│   ├── tools.md              # every tool: parameters, returns, error semantics
+│   ├── footguns.md           # writing traps and their correct forms
+│   ├── recipes.md            # end-to-end recipes with the call sequences
+│   ├── samples.md            # real exports drawn as wireframe scores
+│   ├── channels.md           # protocols for each way of reaching the service
+│   └── setup.md              # requirements, configuration, troubleshooting
+└── scripts/
+    └── call.sh               # command-line access to the service
 ```
 
-**`.env` is never committed** — `.gitignore` already excludes `.env`, `.env.local`, and `.env.*.local`.
-What you commit is `.env.example`.
+---
 
-> To make the MCP channel use a non-default address as well: `.mcp.json` reads **the environment variables of the Claude Code
-> process**; it does not read the `.env` file. So `export DRUMAI_MCP_URL=...` in your shell before starting `claude`, or put it in
-> the `env` block of `~/.claude/settings.json`. When both are set, the settings `env` wins.
+## Links
 
-## Choosing among the three channels
-
-| Scenario | Which channel | How to use it |
-| --- | --- | --- |
-| MCP already configured in the client | **MCP tools** | Call them directly — full capability, 18 tools. Tool names are `create_draft` and the like |
-| Client does not support MCP but can run a shell | **Script channel** | `bash scripts/call.sh <tool name> '<JSON>'` — same capability as MCP |
-| Neither | **Raw JSON-RPC** | POST to `<address>/mcp` yourself; protocol details in `references/channels.md` |
-
-All three channels go through the same tool registry and have exactly the same capability.
-
-**Where the address comes from**: the MCP tools channel is declared by `.mcp.json` (Claude Code reads it automatically, no manual
-setup); the script and raw JSON-RPC channels are determined by `DRUMAI_MCP_URL` / `.env` — a separate source from `.mcp.json`, and the two do not affect each other.
-
-## For ChatGPT / remote AI clients
-
-The public deployment at `https://c1c1.online/drumai_mcp` is already reachable from outside, so remote clients can connect to it
-directly. The three items below only apply when you **deploy it yourself**.
-
-### Three prerequisites for self-hosting
-
-1. **The service must listen on all interfaces**, or other machines cannot connect. By default it binds to the loopback address
-   only; to expose it you have to change the startup parameters:
-
-   ```bash
-   HOST=0.0.0.0 PORT=8787 PUBLIC_BASE_URL=https://your-domain npm start
-   ```
-
-   Or use a tunnel / reverse proxy.
-
-2. **This service has no authentication whatsoever.** Anyone who can reach it can generate PRESET links and create drafts.
-   Prefer a tunnel with access control (such as Cloudflare Tunnel + Access), and **do not expose the port raw to the public internet**.
-
-3. **`PUBLIC_BASE_URL` determines the host of the links.** If it is not set, the link returned by `render_preset` points at the
-   machine the service itself runs on, and **only that machine can open it**.
-   When a remote user cannot open the link, check this setting first — do not suspect a mistyped parameter.
-
-### How to tell ChatGPT the address
-
-ChatGPT cannot read your local files, so you have to feed it manually. Pick one of the two:
-
-- **Say it in the conversation**: "the service address is `http://xxx`", then paste the contents of `SKILL.md`,
-  `references/tools.md`, and `references/footguns.md` to it.
-- **Project knowledge / a custom GPT**: upload `SKILL.md` and the files under `references/` as knowledge files,
-  and state the service address in the instructions.
-
-`${CLAUDE_SKILL_DIR}` in `SKILL.md` is a Claude Code-specific variable; when using this with ChatGPT, replace it with the actual
-path, or ignore it (raw JSON-RPC works with plain curl and does not depend on the script).
-
-### What a remote AI can and cannot do
-
-It can write patterns, add fills, apply style templates, work out velocity and ratchet/flam detail, and produce the link. It
-**cannot** import the PRESET into the app for the user — that step has to be done by the user tapping the link on their phone.
-
-## Script cheat sheet
-
-```bash
-# run from the skill directory; inside Claude Code this is $CLAUDE_SKILL_DIR
-S=scripts
-
-bash $S/call.sh --list                                  # list all tool names
-bash $S/call.sh list_kits '{"style":"trap"}'            # find kits by style
-bash $S/call.sh get_kit '{"kitId":"kit-10"}'            # get the voice table (required before writing patterns)
-
-bash $S/call.sh create_draft '{"kit":"kit-10","name":"My Beat","bpm":140,"bars":2}'
-bash $S/call.sh set_voice_grid '{"draftId":"d_xxx","voices":[{"index":0,"triggers":"x---x---x---x---"}]}'
-bash $S/call.sh render_preset '{"draftId":"d_xxx"}'
-```
-
-Data goes to stdout; diagnostics go to stderr.
-
-Exit codes:
-
-| Code | stderr prefix | Meaning |
-| --- | --- | --- |
-| `0` | — | success |
-| `1` | `Tool error:` | the tool itself reported an error (invalid arguments, failed validation) — **a normal result, fix the arguments and retry** |
-| `1` | `Cannot reach the service:` | the service is not running, or the address is wrong |
-| `1` | `The service did not return an MCP response` | the endpoint was given as the root path; it should be `<address>/mcp` |
-| `1` | `RPC error:` | a protocol-level error, usually a nonexistent tool name |
-| `2` | — | usage error (the argument is not valid JSON, or an argument is missing) |
-
-## Troubleshooting
-
-| Symptom | Cause |
-| --- | --- |
-| `Cannot reach the service:` | the service is not started, or the address is wrong (`.env` / `DRUMAI_MCP_URL`). Try `curl <address>/healthz` first |
-| `The service did not return an MCP response` | the endpoint is missing `/mcp` and hit the root path or some other path |
-| `草稿不存在或已过期` | drafts live in service process memory; they expire after 2 hours and are lost on restart. Run `create_draft` again |
-| The user cannot open the link from `render_preset` | `PUBLIC_BASE_URL` is not set on the server, so the link points at the service's own local address |
-| The tool returns `isError` but the reason is unclear | Read `issues[].path` and `code` in the response and compare against section 5 of `references/tools.md` |
-| The pattern you wrote is not the one you wanted | You most likely hit something in the `hits`-repeats-per-bar family of footguns; see `references/footguns.md` |
-| `render_preset` reports `spec 校验未通过` | Run `validate_draft` first; it is usually an empty grid or a step-count mismatch |
+- App Store: <https://apps.apple.com/app/id6782609749>
+- Official website: <https://c1c1.online/drumanalyse/>
+- Preset service: <https://c1c1.online/drumai_mcp>

@@ -196,3 +196,21 @@ Key points:
 **The more robust approach**: after `parse_preset` hands you the spec, rebuild a draft with `create_draft`,
 then edit it with `set_voice_grid`. That way you can check every step with `get_draft`, at the cost of a few extra calls.
 It's worth doing when the user pastes **someone else's** share text and asks for major changes.
+
+---
+
+## Read-only variant: the user pastes a `DHP2;...` blob and asks "what is this?"
+
+Do not reach for `parse_preset` if nobody is going to edit anything — it returns a `spec` in wire field names,
+and reading a grid out of it means counting characters. `render_wireframe` takes the same input and draws it:
+
+```
+1) render_wireframe  {"input":"DHP2;k=kit-10;b=124;n=...;d=..."}
+   → score: the pattern as a wireframe score
+   → voices[]: only the voices with notes, each with its triggers string
+   → silentVoices[], plus notes about dropped fields / velocities / ratchets / flams
+```
+
+Quote the `score` block back to the user in your reply (a code block keeps the columns aligned) and describe
+what it does. It is read-only: no draft is created, no state changes, so it is also the cheap way to compare
+two pasted PRESETs or to check what you just produced before delivering it.
