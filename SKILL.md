@@ -1,6 +1,6 @@
 ---
 name: drumai-preset
-description: Turn "the beat I want" into a PRESET that imports into the Drum AI drum machine app, using the Drum AI PRESET MCP service — pick a kit, write the pattern, add ratchet / flam / velocity detail, and produce a clickable import link. Use when the user asks to create, edit, or analyze a drum pattern / drum preset / drum beat / drum groove; to make a beat in a style such as trap, house, funk, boom bap, techno, breakbeat, or shuffle; to rework an existing PRESET; or to parse a pasted PRESET share text. For the Drum AI drum machine app.
+description: Turn "the beat I want" into a PRESET that imports into the Drum AI drum machine app, using the Drum AI PRESET MCP service — pick a kit, write the pattern, add ratchet / flam / velocity detail, and produce a clickable import link. Use when the user asks to create, edit, or analyze a drum pattern / drum preset / drum beat / drum groove; to make a beat in a style such as trap, house, funk, boom bap, techno, breakbeat, shuffle, or metal / double bass; to rework an existing PRESET; or to parse a pasted PRESET share text. For the Drum AI drum machine app.
 metadata:
   version: "1.0"
 compatibility: Requires the Drum AI Preset MCP service to be reachable; the script channel additionally needs curl and Node.js 20 or newer.
@@ -181,7 +181,40 @@ many cells per beat / steps per bar / what is this position called", **always co
 
 **Triplets are a change of grid density, not a marking**: for triplets, set `cellsPerQuarter: 3` or `6`.
 
-### 4.4 Sound detail: your unique advantage
+### 4.4 Density is a musical decision: `8` for double bass
+
+The five values are not five levels of detail on one ruler — **they set the shortest note the grid can
+express**, and that decides which figures are writable at all. Take 106 BPM as the yardstick:
+
+| `cellsPerQuarter` | one cell is | at 106 BPM | what it makes possible |
+| --- | --- | --- | --- |
+| `4` | a sixteenth note | 141.5 ms | the default; every recipe in `references/recipes.md` |
+| `8` | a thirty-second note | 70.8 ms | double-bass bursts, thirty-second hi-hat and tom work |
+
+The concrete case is a double-bass burst: **six kicks crowded into the space of one beat**. At 8 cells
+per beat those six hits are six cells — 0.75 of a beat, which is the figure Sample 1 uses. Written on a
+sixteenth grid the same six hits would have to span 1.5 beats: a rhythm twice as slow, because six
+sixteenths do not fit inside four sixteenths. The figure simply is not available at that density. That
+— not "finer detail" — is what `cellsPerQuarter: 8` buys, and the only reason to reach for it. Worked
+example in `references/samples.md` (Sample 1).
+
+What the density costs:
+
+- **Every count doubles, and so does every chance to miscount.** 4/4 at 8 cells per beat is 32 steps
+  per bar, so a 2-bar `triggers` row is 64 characters and a 4-bar row is 128. A short row is silently
+  padded, not rejected (footguns item 4) — count before you copy.
+- **A ratchet is half a cell**, so at this density it is a sixty-fourth note: 35 ms at 106 BPM. Do not
+  use ratchets to thicken a dense grid, they turn to mush (footguns item 8).
+- **The payload grows with the step count.** A 64-step, 8-voice pattern is 3347 characters of share
+  text; the cap is 16384 and the warning threshold is around 330 steps, which is about 10 bars here.
+  Footguns item 16 says what that warning does and does not mean.
+- **Decide the density before writing the first row.** Changing `cellsPerQuarter` later rebuilds every
+  grid (footguns item 10).
+
+Position names come from `list_grid_options` as always — under 4/4 with `8` they are `downbeat` then
+`1` through `7`, with `stepsPerBeat: 8`.
+
+### 4.5 Sound detail: your unique advantage
 
 Velocity, ratchet, and flam **cannot be edited by the user in the app's UI, but they do sound on
 playback**. This is the value your patterns have over hand-clicked ones — use them:
@@ -197,7 +230,7 @@ Note that `velocities` keys are 0-based step indices while `hits`' `beat` is a 1
 the whole row** for that voice and resets velocities to `1` (existing ratchets / flams survive) — it
 will overwrite what you have written, so **apply fills first, then build velocity dynamics**.
 
-### 4.5 Three hard limitations
+### 4.6 Three hard limitations
 
 1. **The app only plays variation 1** (index 0). The data format supports 4, but writing variations 2
    through 4 produces no sound. Write variation 0 only.
@@ -262,6 +295,8 @@ before you start.
 - `references/channels.md` — how to reach the service over each of the three channels, plus protocol details
 - `references/recipes.md` — end-to-end recipes (house / boom bap / trap / multi-bar from a built-in PRESET)
   with the actually-run call sequences
+- `references/samples.md` — decoded real exports drawn as wireframe scores, starting with the
+  `cellsPerQuarter: 8` double-bass sample; also documents how to read a wireframe score
 - `scripts/call.sh` — the JSON-RPC call script for non-MCP clients
 - `README.md` — for humans: install, dependencies, configuration, troubleshooting (not needed by the AI)
 - `.mcp.json` / `.claude-plugin/plugin.json` — the MCP service declaration; configuration details live there, not here

@@ -21,7 +21,8 @@ drumai_skill/
 │   ├── tools.md              # precise reference for the 18 MCP tools
 │   ├── footguns.md           # list of writing footguns (18 entries)
 │   ├── channels.md           # how to connect over the three channels
-│   └── recipes.md            # end-to-end recipes (house / boom bap / trap / rewriting multiple bars from a built-in PRESET)
+│   ├── recipes.md            # end-to-end recipes (house / boom bap / trap / rewriting multiple bars from a built-in PRESET)
+│   └── samples.md            # decoded exports drawn as wireframe scores (double bass at 8 cells per beat)
 └── scripts/
     └── call.sh               # script channel: call a single MCP tool
 ```
