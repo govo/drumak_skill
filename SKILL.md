@@ -230,7 +230,50 @@ Note that `velocities` keys are 0-based step indices while `hits`' `beat` is a 1
 the whole row** for that voice and resets velocities to `1` (existing ratchets / flams survive) — it
 will overwrite what you have written, so **apply fills first, then build velocity dynamics**.
 
-### 4.6 Three hard limitations
+### 4.6 Sound design: the Mixer is a musical decision too
+
+Every voice carries five Mixer parameters — `decay` / `tune` / `filter` / `pan` / `volume` — written through
+`update_draft`'s `voices[].params`. This is **not a snare-only technique**: every one of the 8 voices in every
+kit is adjustable the same way, and a small nudge is enough to move a voice off "this kit's stock sample" onto a
+distinct sound, which in turn changes how the groove reads. Neutral is what `get_kit` reports as each voice's
+default — `tune` / `filter` / `decay` / `pan` at `50`, `volume` at `100` (what the app's UI calls **Level**) —
+so "turn it up" means above 50, "turn it down" means below 100. Unlike the master chain, voice params **do** come
+back from `get_draft`, so you can read back what you set.
+
+| Param | What it does |
+| --- | --- |
+| `tune` | pitch: up is higher and tighter, down is deeper and heavier |
+| `filter` | tone and body: up thins the sound out, down gives it more body |
+| `volume` | the app's Level — how far forward the voice sits in the mix |
+| `decay` | how long the hit rings |
+| `pan` | placement left to right |
+
+Two things to know before you touch them:
+
+- **Params are per voice, per draft — not per step.** Shaping a voice reshapes *every* hit on it. You cannot
+  have a light rimshot on beat 2 and a full snare on beat 4 out of one voice.
+- **To get both in the same pattern, use a second voice of the same family** — kit-5 Hybrid ships two snares
+  (indices 2 and 3); on any other kit a clap / perc / tom can be repurposed. Shape only that one and leave the
+  main voice neutral.
+
+**Worked example: rimshot / cross-stick on the snare.** Three knobs, all on the snare voice:
+
+| Param | Direction | What it does |
+| --- | --- | --- |
+| `tune` | up | raises the pitch — the stick-on-the-rim crack, instead of the drum's body |
+| `filter` | up | thins the tone out; the more you push it, the more hollow |
+| `volume` (Level) | down | a lighter hit, so it sits behind the backbeat rather than in front of it |
+
+All three together read as a light rimshot; nudge the three amounts until it sits right. The mapping is
+monotonic, so the reverse is equally useful: **`tune` down makes the snare heavier and more powerful** — the
+move for a big chorus backbeat or a heavier second half. The same logic transfers to every other voice: the
+same three moves (pitch, filter, level) give any voice its own lighter and heavier variants, which is how you
+carve out a kit's sound and how you keep two voices of the same family apart.
+
+Say so in your delivery when you use this: these are the app's own Mixer controls, so the user can keep
+adjusting by hand after import.
+
+### 4.7 Three hard limitations
 
 1. **The app only plays variation 1** (index 0). The data format supports 4, but writing variations 2
    through 4 produces no sound. Write variation 0 only.

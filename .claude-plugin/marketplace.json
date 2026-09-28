@@ -1,0 +1,14 @@
+{
+  "name": "drumai",
+  "description": "Drum AI skills. Turn a described beat into a PRESET link that imports into the Drum AI drum machine app.",
+  "owner": {
+    "name": "Govo Li"
+  },
+  "plugins": [
+    {
+      "name": "drumai-preset",
+      "source": "./",
+      "description": "Drum AI PRESET MCP: turn \"the beat I want\" into a PRESET link that imports into the Drum AI drum machine app"
+    }
+  ]
+}

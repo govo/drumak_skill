@@ -8,11 +8,12 @@ The output is always **a single link**: the user opens it to see the beat previe
 ## Directory structure
 
 ```
-drumai_skill/
+drumak_skill/
 ├── SKILL.md                  # main entry point for AI (loaded automatically by Claude Code)
 ├── README.md                 # this file, for humans
 ├── .claude-plugin/
-│   └── plugin.json           # plugin manifest: this is what lets the directory carry an MCP server
+│   ├── plugin.json           # plugin manifest: this is what lets the directory carry an MCP server
+│   └── marketplace.json      # marketplace catalog: this is what lets the repo be added by /plugin marketplace add
 ├── .mcp.json                 # MCP server declaration (Claude Code reads it from the plugin root)
 ├── .env.example              # environment variable sample, copy to .env
 ├── .env                      # actual local config (excluded by .gitignore, not committed)
@@ -31,15 +32,18 @@ drumai_skill/
 
 ### Claude Code
 
-Symlink the directory into your global skills directory — **the symlink name is the name that takes effect**:
+Add this repository as a plugin marketplace, then install the plugin from it:
 
-```bash
-ln -s /Users/govo/Documents/Work/cursor/drumai_skill ~/.claude/skills/drumai-preset
+```
+/plugin marketplace add govo/drumak_skill
+/plugin install drumai-preset@drumai
 ```
 
-Because of `.claude-plugin/plugin.json`, this directory is loaded **as a plugin** (id
-`drumai-preset@skills-dir`), and the `.mcp.json` inside it takes effect with it — **the MCP server registers
-automatically: no marketplace, no `--plugin-dir`, no `/plugin` install needed**.
+That is the whole install. The plugin carries its own `.mcp.json`, so **the MCP server registers automatically** — there is
+no address to fill in and no config file to edit.
+
+(Outside a session the same two steps are `claude plugin marketplace add govo/drumak_skill` and
+`claude plugin install drumai-preset@drumai`, which is what an AI assistant runs when you ask it to install this for you.)
 
 Once installed:
 
@@ -47,17 +51,31 @@ Once installed:
 - `/mcp` shows the server `plugin:drumai-preset:drumai-preset`;
 - Tools are exposed as `mcp__plugin_drumai-preset_drumai-preset__<tool name>`.
 
-To verify:
+`claude plugin list` should show `drumai-preset@drumai` as enabled. To pick up new versions later, run
+`claude plugin marketplace update drumai`; to disable temporarily, `claude plugin disable drumai-preset@drumai`.
+
+#### Alternative: clone into your skills directory
+
+If you would rather have the files as a plain checkout you can read and edit:
 
 ```bash
-claude plugin validate /Users/govo/Documents/Work/cursor/drumai_skill   # should print Validation passed
-claude plugin list                                                     # drumai-preset@skills-dir should appear
+git clone https://github.com/govo/drumak_skill.git ~/.claude/skills/drumai-preset
 ```
 
-To disable it temporarily: `claude plugin disable drumai-preset@skills-dir`, or delete the symlink.
+**The target directory has to be named exactly `drumai-preset`.** Claude Code requires a skill directory name to match the
+`name` field in `SKILL.md`, and that name may only contain `a-z`, `0-9` and `-`. A checkout in a differently-named directory
+will not load.
 
-> The physical directory name `drumai_skill` contains an underscore, which breaks the skill naming rules (only `a-z0-9-`
-> is allowed), so the frontmatter uses `name: drumai-preset` and the symlink name supplies the match. Do not change the symlink name.
+Loaded this way the plugin id is `drumai-preset@skills-dir`, and the `.mcp.json` inside it takes effect with it — so the MCP
+server registers automatically here too, with no extra configuration.
+
+If you already have a checkout somewhere else (for example a working copy you develop in), symlink it in instead of cloning:
+
+```bash
+ln -s /absolute/path/to/your/checkout ~/.claude/skills/drumai-preset
+```
+
+The symlink name is what takes effect, so it must also be `drumai-preset`. Delete the symlink to uninstall.
 
 ### Other clients
 
@@ -188,7 +206,8 @@ It can write patterns, add fills, apply style templates, work out velocity and r
 ## Script cheat sheet
 
 ```bash
-S=/Users/govo/Documents/Work/cursor/drumai_skill/scripts
+# run from the skill directory; inside Claude Code this is $CLAUDE_SKILL_DIR
+S=scripts
 
 bash $S/call.sh --list                                  # list all tool names
 bash $S/call.sh list_kits '{"style":"trap"}'            # find kits by style

@@ -218,7 +218,10 @@ Ranges: `masterVolume` is **0..200**; the other 10 master chain parameters (`fil
 are **0..100**. Voice parameters (`decay` / `tune` / `filter` / `pan` / `volume`) are also 0..100.
 
 **Generally do not touch master chain parameters**: the sound is mainly determined by the kit and the master chain, and factory PRESETs never touch voice parameters.
-Unless the user explicitly asks for a sound adjustment, do not touch them.
+Unless the user explicitly asks for a sound adjustment, do not touch them. Note that this caution is about the **master chain**: the
+Mixer parameters of the voices themselves (`tune` / `filter` / `volume` / `decay` / `pan`) are a legitimate musical choice on any
+voice of any kit when the user asks for a particular sound — see SKILL.md section 4.6, which documents the technique and the snare
+rimshot as its worked example.
 
 ---
 
