@@ -359,6 +359,19 @@ Returns `{ ok, source, spec, readable?, diagnostics:{ valid, issues, droppedFiel
 - DHP2 **does not carry the bar count**; `bars` is inferred and may differ from the original.
 - When the input contains a `DHPL;` multi-line container, only the 1st entry is parsed, and `notes` says so.
 
+When the input cannot be decoded, the failure carries a `code` and a `detail` block, which is how you tell
+"the link text was damaged" apart from "this pattern was never valid":
+
+| `code` | Meaning |
+| --- | --- |
+| `payload_length_invalid` | Not a legal base64url length (remainder 1). A character was dropped in transit. `detail.payloadLength` gives the length |
+| `inflate_failed` + `detail.hint: "truncated_tail"` | The DEFLATE stream ends early — the string was cut short |
+| `inflate_failed` + `detail.hint: "corrupted_middle"` | The stream was altered somewhere in the middle; this link is dead |
+| `invalid_json` / `invalid_spec` | It decoded, but the content is not a well-formed PRESET |
+
+The first three mean the user's link is damaged; re-issue it (see SKILL.md §6). `payload_length_invalid` is by far
+the most common — dropping a single character from a payload of length `4n + 2` always lands here.
+
 ### 19. `render_wireframe`
 
 ```

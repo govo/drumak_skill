@@ -313,6 +313,28 @@ the two paths:
 hand drops characters. Do not truncate the link, do not substitute "already generated", and do not write
 out a separate copy of the payload text. The link *is* the payload; let the page hand it to the app.
 
+### If the user comes back with a broken link
+
+A user may return saying the link will not open, or paste back the error they saw. Handle it in this
+order. Do not just apologise, and do not try to repair the old link.
+
+1. **Find out what they saw.** If they only said "it doesn't work", ask them to open the link and press
+   **"Copy error details"** on the page — it hands back the reason and the technical detail as one short
+   block they can paste to you. It deliberately leaves the link itself out; you do not need it back.
+2. **Read the cause.** That block carries the failure code and the payload length, which is enough to
+   tell the two cases apart:
+   - `payload_length_invalid` or `inflate_failed` — the payload text was damaged on the way: a
+     character was dropped, or the string was cut short. This is the usual cause.
+   - If they pasted the link itself instead, `parse_preset` confirms it and returns the same codes.
+   - If the page renders fine for them, the link is intact and the problem is on their side: the app is
+     not installed, or the browser blocked the `drumai://` scheme. Point them at "Copy PRESET text" on
+     the page instead.
+3. **Re-issue; do not patch.** Call `render_preset` again on the same draft and hand over the fresh
+   `url`. The pattern was never wrong, so a re-render always succeeds. If the draft is gone, rebuild
+   it — never retype the damaged link, and never hand back the same one "to try again".
+4. **Say plainly what happened:** the link text was damaged in transit, here is a new one, open it and
+   tap "Open in App". Put the new link in a code block by itself, with nothing else on those lines.
+
 ## 7. Tool quick reference
 
 | Tool | What it does |

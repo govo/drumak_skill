@@ -262,10 +262,16 @@ The engine does not read these two fields; writing them produces no audible diff
 
 The `url` given by `render_preset` has a long base64url payload in it (several thousand characters).
 
-**Consequence**: restating it character by character drops characters extremely easily; the user gets a broken payload, the import reports "corrupted payload", and you have no way to self-check.
+**Consequence**: restating it character by character drops characters extremely easily, and the user gets a broken payload.
+You cannot talk yourself out of this one — the damage is already in the string, and re-reading your own output will not reveal it.
 
 **Right way**: give the complete `url` (put it in a code block), and tell the user to open the link and click "Open in App".
 Do not truncate it, do not substitute "generated" for it, do not copy out a separate payload text.
+
+**When it has already happened**: if the user reports a link that will not open, the page's **"Copy error details"**
+button hands back the reason and the failure code in one short block. A `payload_length_invalid` or `inflate_failed`
+code confirms characters were lost in transit. Then re-issue with a fresh `render_preset` and say so plainly —
+see SKILL.md §6, "If the user comes back with a broken link".
 
 ---
 
