@@ -260,13 +260,17 @@ The engine does not read these two fields; writing them produces no audible diff
 
 ## 15. Do not restate the payload in the link
 
-The `url` given by `render_preset` has a long base64url payload in it (several thousand characters).
+Both links given by `render_preset` — `url` and `deeplink` — carry the same long base64url payload (several thousand characters).
 
-**Consequence**: restating it character by character drops characters extremely easily, and the user gets a broken payload.
+**Consequence**: restating either one character by character drops characters extremely easily, and the user gets a broken payload.
 You cannot talk yourself out of this one — the damage is already in the string, and re-reading your own output will not reveal it.
+The same applies to "helpfully" assembling the deep link yourself: copying the `p` value out of `url` and prepending
+`drumai://import?p=` is hand-transcription under a different name.
 
-**Right way**: give the complete `url` (put it in a code block), and tell the user to open the link and click "Open in App".
-Do not truncate it, do not substitute "generated" for it, do not copy out a separate payload text.
+**Right way**: hand over both fields exactly as returned, each in a code block — the `deeplink` for a device with
+the app installed, the `url` for the preview page and its "Open in App" button. Both are built server-side from
+one payload; there is nothing for you to assemble. Do not truncate them, do not substitute "generated" for them,
+do not copy out a separate payload text.
 
 **When it has already happened**: if the user reports a link that will not open, the page's **"Copy error details"**
 button hands back the reason and the failure code in one short block. A `payload_length_invalid` or `inflate_failed`

@@ -218,6 +218,10 @@ Behavior notes:
   `velocities` are **merged by key** in either mode.
 - **Validated as a whole before writing**: if any voice in one call has an error, **none of them is written**. There is no half-written state.
 - **`hits` repeats in every bar** (see `footguns.md` item 1).
+- **`velocities` is the only way to give each hit its own strength**, and it is the lever to reach for on every
+  pattern: keys are 0-based step indices, values `0..1`, omitted steps default to `1.0`. The app fully supports
+  per-hit velocity (the user can drag it after import), so a pattern written entirely at `1.0` is a wasted
+  opportunity, not a neutral choice.
 - An out-of-range `variation` throws `invalid_variation`.
 
 Returns `{ draftId, derived, voices:[{ index, grids }] }` — **it echoes the grids actually written**,
@@ -330,10 +334,17 @@ The full meaning of `draft_not_found` is "does not exist **or** has expired"; on
 
 Returns:
 
-- `url`: **this is your output**. Of the form `<PUBLIC_BASE_URL>/p?p=<DHP3 payload>`.
-- `urlLength`: the length of the link (the payload is long, usually several thousand characters; normal).
+- `url`: **half of your output**. Of the form `<PUBLIC_BASE_URL>/p?p=<DHP3 payload>` — the web landing page.
+- `deeplink`: **the other half**. Of the form `drumai://import?p=<same payload>` — tapping it on a device
+  with the app installed opens the import panel directly. Both links are built here from one encoded
+  payload: **hand them over as returned; never build the deep link yourself by copying `p` out of `url`.**
+- `urlLength`: the length of the web link (the payload is long, usually several thousand characters; normal).
+- `copyNote`: a reminder that both links must be copied whole.
 - `preview`: readable grids (each voice's `grid` and `hitCount`), for showing the user or for checking yourself.
 - `diagnostics`: `{ warnings, derived }`.
+
+`include: ["url"]` returns `url` + `urlLength` + `deeplink` + `copyNote` together — the two links are one
+delivery, not two independent fields.
 
 Behavior notes:
 

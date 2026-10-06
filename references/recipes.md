@@ -6,7 +6,7 @@ so when you go through the MCP tool channel, just move the "tool name + JSON" ov
 All four recipes follow the same skeleton:
 
 ```
-pick a kit → write the pattern (all voices in one pass) → add a fill → self-check → render_preset for the link
+pick a kit → write the pattern (all voices in one pass) → add a fill → self-check → render_preset for the links
 ```
 
 **Remember that `hits` repeats in every bar.** The multi-bar recipes below always use `triggers` to write per-bar grids.

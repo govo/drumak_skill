@@ -1,8 +1,8 @@
 ---
 name: drumai-preset
-description: Turn "the beat I want" into a PRESET that imports into the Drum AI drum machine app, using the Drum AI PRESET MCP service — pick a kit, write the pattern, add ratchet / flam / velocity detail, and produce a clickable import link. Use when the user asks to create, edit, or analyze a drum pattern / drum preset / drum beat / drum groove; to make a beat in a style such as trap, house, funk, boom bap, techno, breakbeat, shuffle, or metal / double bass; to rework an existing PRESET; or to parse a pasted PRESET share text. For the Drum AI drum machine app.
+description: Turn "the beat I want" into a PRESET that imports into the Drum AI drum machine app, using the Drum AI PRESET MCP service — pick a kit, write the pattern, add ratchet / flam / velocity detail, and return a clickable web preview link plus a direct drumai:// app import link. Use when the user asks to create, edit, or analyze a drum pattern / drum preset / drum beat / drum groove; to make a beat in a style such as trap, house, funk, boom bap, techno, breakbeat, shuffle, or metal / double bass; to rework an existing PRESET; or to parse a pasted PRESET share text. For the Drum AI drum machine app.
 metadata:
-  version: "1.0"
+  version: "1.1"
 compatibility: Requires the Drum AI Preset MCP service to be reachable; the script channel additionally needs curl and Node.js 20 or newer.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*) mcp__plugin_drumai-preset_drumai-preset__*
 ---
@@ -13,13 +13,15 @@ Drum AI is a drum machine app. This MCP service exposes the app's drum-sequencin
 you write here becomes a link, and the user opens that link to import the pattern into the app and hear it.
 
 **What you deliver is always a link** — not a prose description, not a JSON blob. The user has not
-received anything until they have the link.
+received anything until they have the link. `render_preset` hands you **two** links carrying the same
+payload: the `https://` landing page and a `drumai://` app deep link. Give both (see §6).
 
 ```
 User says "make me a trap beat"
   → you call the tools
-  → render_preset returns a url
-  → user opens the preview page → Open in App / copy → import into the app → hears it
+  → render_preset returns url + deeplink (same payload, built server-side)
+  → user taps the deeplink → app opens with the import panel pre-filled → taps Import → hears it
+  → or opens the url → preview page → Open in App / copy → import
 ```
 
 On `initialize`, the server sends down a "Drum AI PRESET Construction Rules" document (musical rules,
@@ -96,7 +98,7 @@ not work if they send it to a phone or to someone else — do not doubt your own
 4. create_draft         create the draft (name / bpm / ts / cellsPerQuarter / bars / groove / humanize)
 5. set_voice_grid       write the pattern — your only real musical decision, and the step you iterate on
 6. validate_draft       self-check; never ship an empty PRESET
-7. render_preset        get the url and hand it to the user
+7. render_preset        get url + deeplink and hand both to the user
 ```
 
 Helpers:
@@ -217,21 +219,54 @@ What the density costs:
 Position names come from `list_grid_options` as always — under 4/4 with `8` they are `downbeat` then
 `1` through `7`, with `stepsPerBeat: 8`.
 
-### 4.5 Sound detail: your unique advantage
+### 4.5 Sound detail: per-hit velocity, ratchet, flam
 
-Velocity, ratchet, and flam **cannot be edited by the user in the app's UI, but they do sound on
-playback**. This is the value your patterns have over hand-clicked ones — use them:
+All three sound on playback and all three are **fully supported by the app** — write them, and never ship a
+pattern with every hit at the same strength:
 
-- `velocities`: a sparse velocity map; keys are **step indices (0-based)**, values `0..1`. This is how
-  you build accent dynamics.
-- `ratchets`: `r` adds a second hit **halfway through** that step. This is how you get hi-hat rolls.
-- `flams`: `f` adds a hit **18 milliseconds before** the step (a fixed value, not scaled by BPM). This
-  is how you get snare grace notes.
+- `velocities`: a sparse map; keys are **step indices (0-based)**, values `0..1` (steps you omit are `1.0`).
+  **This is your finest control over how the beat is played, and the one to reach for on every pattern** —
+  see the section below.
+- `ratchets`: `r` adds a second hit **halfway through** that step. This is how you get hi-hat rolls. Unlike
+  velocity, a ratchet **cannot be edited in the app's UI**, so it is yours alone to place.
+- `flams`: `f` adds a hit **18 milliseconds before** the step (a fixed value, not scaled by BPM). This is how
+  you get snare grace notes. Also not editable in the app's UI.
 
-Note that `velocities` keys are 0-based step indices while `hits`' `beat` is a 1-based beat number —
-**two different bases coexist in the same request body**; do not mix them. `apply_fill_mode` **replaces
-the whole row** for that voice and resets velocities to `1` (existing ratchets / flams survive) — it
-will overwrite what you have written, so **apply fills first, then build velocity dynamics**.
+#### Using velocity
+
+A pattern where every hit sits at `1.0` reads as a metronome. Velocity is what makes it read as played, and
+you have the whole `0..1` range per voice per step:
+
+```
+{ "index": 4, "triggers": "x-x-x-x-x-x-x-x-", "velocities": { "0": 1, "2": 0.55, "4": 0.7, "6": 0.55 } }
+```
+
+An eighth-note hi-hat with a strong downbeat, a light "and", a medium third and a light fourth — one line of
+data, and the groove appears.
+
+What it buys you:
+
+- **Accents and ghost notes.** Full strength on the backbeat, `0.35-0.6` between: a snare row of
+  `{"0": 1, "4": 0.5}` is the difference between a drum machine and a drummer.
+- **Hi-hats that breathe.** Alternate a strong and a weak value instead of every hit at 1.
+- **A fill that builds.** Raise the values step by step across the last bar (0.5, 0.65, 0.8, 1.0) so the fill
+  pushes into the next bar rather than just being more notes.
+- **Making room.** Pull a busy hat or percussion row down to `0.4-0.7` so it sits behind the kick and snare.
+- **Fixing a wrong emphasis.** "The snare is too loud" or "the hats are stomping on everything" is this knob —
+  you do not have to rewrite the grid or swap the kit.
+
+Two limits:
+
+- Velocity is **per step, not per individual hit** — the extra hits a ratchet or flam adds at a step share
+  that step's velocity.
+- `velocities` keys are 0-based step indices while `hits`' `beat` is a 1-based beat number — **two different
+  bases coexist in the same request body; do not mix them.** `apply_fill_mode` **replaces the whole row** for
+  that voice and resets velocities to `1` (existing ratchets / flams survive) — so **apply fills first, then
+  build velocity dynamics**.
+
+Nothing here is locked in: the app's sequencer and recognition page both let the user drag a hit's velocity by
+hand after import, so what you write is a starting point you are handing them, not a final decision. Say so
+when you deliver — it tells the user the dynamics are theirs to keep shaping.
 
 ### 4.6 Sound design: the Mixer is a musical decision too
 
@@ -301,17 +336,28 @@ adjusting by hand after import.
 
 ## 6. Delivery
 
-`render_preset` returns a `url`. Give it to the user in a code block so it is easy to copy, and explain
-the two paths:
+`render_preset` returns **two links carrying the same payload**. Both are assembled server-side from one
+encoded payload — your job is to hand them over whole, not to build either one:
 
-1. Open the link → the "Open in App" button → the app launches with the payload already loaded into the
-   import panel; review it and tap Import. (Recommended)
-2. Button does nothing (app not installed / browser blocked it) → use "Copy PRESET text" on the page → go
-   to the app's drum sequence page → PRESET menu → Import → paste.
+| Field | What it is | When to lead with it |
+| --- | --- | --- |
+| `deeplink` | `drumai://import?p=<payload>` — opens the app's import panel directly, payload already filled in | The user is on a device with Drum AI installed |
+| `url` | The `https://` landing page — rhythm preview, and from there "Open in App" / "Copy PRESET text" | The user is not on that device, or you do not know. It works everywhere |
 
-**Do not paraphrase the payload yourself.** The payload is a long base64url string and transcribing it by
-hand drops characters. Do not truncate the link, do not substitute "already generated", and do not write
-out a separate copy of the payload text. The link *is* the payload; let the page hand it to the app.
+Put each in **its own code block** so it is easy to copy, labeled as the app link and the web preview,
+and explain the paths:
+
+1. Tap the app link (`deeplink`) on the device → the app launches with the payload already loaded into the
+   import panel; review it and tap Import. (Shortest path)
+2. Or open the web link (`url`) → the "Open in App" button on the page does the same thing.
+3. Neither button works (app not installed / browser blocked the scheme) → use "Copy PRESET text" on the
+   page → go to the app's drum sequence page → PRESET menu → Import → paste.
+
+**Never assemble the deep link yourself.** It is tempting to copy the `p` value out of `url` and prepend
+`drumai://import?p=`; that is exactly the hand-transcription that drops characters, and it is unnecessary
+because the server already returns the finished `deeplink`. Do not paraphrase the payload, do not truncate
+either link, do not substitute "already generated", and do not write out a separate copy of the payload
+text. The link *is* the payload.
 
 ### If the user comes back with a broken link
 
@@ -330,10 +376,11 @@ order. Do not just apologise, and do not try to repair the old link.
      not installed, or the browser blocked the `drumai://` scheme. Point them at "Copy PRESET text" on
      the page instead.
 3. **Re-issue; do not patch.** Call `render_preset` again on the same draft and hand over the fresh
-   `url`. The pattern was never wrong, so a re-render always succeeds. If the draft is gone, rebuild
-   it — never retype the damaged link, and never hand back the same one "to try again".
-4. **Say plainly what happened:** the link text was damaged in transit, here is a new one, open it and
-   tap "Open in App". Put the new link in a code block by itself, with nothing else on those lines.
+   `url` and `deeplink`. The pattern was never wrong, so a re-render always succeeds. If the draft is
+   gone, rebuild it — never retype the damaged link, and never hand back the same one "to try again".
+4. **Say plainly what happened:** the link text was damaged in transit, here are new ones, tap the app
+   link (or open the web link and tap "Open in App"). Put each new link in a code block by itself, with
+   nothing else on those lines.
 
 ## 7. Tool quick reference
 
@@ -349,7 +396,7 @@ order. Do not just apologise, and do not try to repair the old link.
 | `apply_fill_mode` / `apply_style_template` | Apply a fill mode / a style skeleton |
 | `update_draft` | Change transport, voice parameters, master chain, variation copy and clear |
 | `get_draft` / `validate_draft` / `list_drafts` / `delete_draft` | Read back / validate / list / delete |
-| `render_preset` | **Produce the link** (optionally with `preview` and `diagnostics`) |
+| `render_preset` | **Produce the two links** — `url` (landing page) + `deeplink` (`drumai://`) — optionally with `preview` and `diagnostics` |
 | `parse_preset` | Parse DHP2 share text / a DHP3 payload / a full link → editable `spec` |
 | `render_wireframe` | Same input, read-only: draw it as a wireframe score so you or the user can see the pattern |
 
