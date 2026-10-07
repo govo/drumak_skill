@@ -171,8 +171,8 @@ in a PRESET it is **0..100**, while MCP's `groove` is **0..1**. Using it as the 
 ```
 
 `tags` labels the PRESET's **musical style** (not the kit: `trap` means "this is a trap beat", whatever kit it
-uses) from exactly these 14 values: `rock` `pop` `funk` `hiphop` `trap` `house` `techno` `dnb` `lofi` `jazz`
-`latin` `rnb` `reggae` `acoustic`. A value outside that list is **rejected at the schema boundary**, with an
+uses) from exactly these 14 values: `rock` `punk` `pop` `funk` `hiphop` `trap` `house` `techno` `dnb` `lofi`
+`jazz` `latin` `rnb` `reggae`. A value outside that list is **rejected at the schema boundary**, with an
 error that lists every valid option (the schema is strict, like the other fields — an unknown tag is never
 dropped silently). The field is optional — omitting it means the PRESET simply has no tags — but tag by default:
 whenever you can tell what style the beat is, pass the matching tags. The app's PRESET library shows the tags and

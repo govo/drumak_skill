@@ -120,8 +120,8 @@ Helpers:
   per voice
 
 **Tag the style by default.** `create_draft` (and `update_draft`) take a `tags` array labelling the
-PRESET's musical style, from a fixed 14-value vocabulary — `rock pop funk hiphop trap house techno dnb
-lofi jazz latin rnb reggae acoustic`. The app's PRESET library shows the tags and lets the user filter by
+PRESET's musical style, from a fixed 14-value vocabulary — `rock punk pop funk hiphop trap house techno dnb
+lofi jazz latin rnb reggae`. The app's PRESET library shows the tags and lets the user filter by
 them, so an untagged PRESET is harder to find again: whenever you can tell what style the beat is, pass the
 matching tags (or set them later with `update_draft` once the style becomes clear). The only reason to leave
 them out is that you genuinely cannot judge the style — an untagged PRESET is still valid and importable. An

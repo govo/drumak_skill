@@ -321,8 +321,8 @@ if you are unsure, state how you intend to set it and let the user confirm.
 
 ## 19. `tags` is omitted when empty, and unknown slugs are dropped when reading but rejected when writing
 
-Tags are style metadata from a fixed 14-value vocabulary (`rock pop funk hiphop trap house techno dnb lofi
-jazz latin rnb reggae acoustic`); the app's PRESET library shows them and filters by them. Two traps:
+Tags are style metadata from a fixed 14-value vocabulary (`rock punk pop funk hiphop trap house techno dnb lofi
+jazz latin rnb reggae`); the app's PRESET library shows them and filters by them. Two traps:
 
 - **Empty means omitted, everywhere.** When a PRESET has no tags, the `tags` key is **absent** from every tool
   return value, from the `spec`, and from the DHP2 share text — it is **never** `"tags": []`. So a "did my tags
