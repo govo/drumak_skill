@@ -95,7 +95,7 @@ not work if they send it to a phone or to someone else — do not doubt your own
 1. list_kits            pick a kit (optionally filtered by style; or ask the user what style they want)
 2. get_kit              get that kit's 8 voices, their indices, roles, and usage hints
 3. list_grid_options    confirm the steps-per-bar for the time signature × cellsPerQuarter
-4. create_draft         create the draft (name / bpm / ts / cellsPerQuarter / bars / groove / humanize)
+4. create_draft         create the draft (name / bpm / ts / cellsPerQuarter / bars / groove / humanize / tags)
 5. set_voice_grid       write the pattern — your only real musical decision, and the step you iterate on
 6. validate_draft       self-check; never ship an empty PRESET
 7. render_preset        get url + deeplink and hand both to the user
@@ -109,6 +109,7 @@ Helpers:
 - You want to hear what a good pattern looks like in this app → `list_reference_presets` +
   `get_reference_preset`
 - The user pasted a `DHP2;...` string and said "tweak this" → `parse_preset`, edit, then `render_preset`
+  (a trailing `tag=` field round-trips: it comes back in `spec.tags` and is written out again)
 - The user pasted a `DHP2;...` string and you (or they) just need to **see what it is** — `render_wireframe`
   draws the pattern as a wireframe score, no draft needed. Use it to read a pattern, compare two of them,
   or answer "what is this drum part doing". Use `parse_preset` instead when you intend to edit
@@ -117,6 +118,15 @@ Helpers:
   `bars` is forced to 1 with `name` not changeable. To get more bars, follow the path in footguns item 3
 - Batch beats one-at-a-time: write several voices in a single `set_voice_grid` call instead of one call
   per voice
+
+**Tag the style by default.** `create_draft` (and `update_draft`) take a `tags` array labelling the
+PRESET's musical style, from a fixed 14-value vocabulary — `rock pop funk hiphop trap house techno dnb
+lofi jazz latin rnb reggae acoustic`. The app's PRESET library shows the tags and lets the user filter by
+them, so an untagged PRESET is harder to find again: whenever you can tell what style the beat is, pass the
+matching tags (or set them later with `update_draft` once the style becomes clear). The only reason to leave
+them out is that you genuinely cannot judge the style — an untagged PRESET is still valid and importable. An
+unknown value is **rejected with the list of valid options**. A tag is about style, not about the kit: `trap`
+means "this is a trap beat" whatever kit it uses.
 
 Drafts are stateful: they expire after 2 hours, at most 500 are kept, and a dead `draftId` must be
 recreated. Try to finish a whole job in one conversation.
@@ -147,6 +157,13 @@ indices yourself):
 values depend on the grid density — you must use a value from the `offsets` array returned by
 `list_grid_options` (at 4 cells per beat these are `downbeat` / `e` / `and` / `a`). Each entry in `hits`
 must carry either `step`, or both `beat` and `offset` — never both forms, and never neither.
+
+A hit may also carry `velocity` (`0..1`, default `1`), which is how you write dynamics in this form without
+converting anything to a step index — see §4.5:
+
+```
+{"index": 1, "hits": [{"beat": 2, "offset": "downbeat", "velocity": 1}, {"beat": 2, "offset": "a", "velocity": 0.4}]}
+```
 
 ### 4.2 hits repeats per bar; it is not absolute positioning
 
@@ -235,14 +252,26 @@ pattern with every hit at the same strength:
 #### Using velocity
 
 A pattern where every hit sits at `1.0` reads as a metronome. Velocity is what makes it read as played, and
-you have the whole `0..1` range per voice per step:
+you have the whole `0..1` range per voice per step. Two equivalent routes — pick the one matching how you
+wrote the triggers.
+
+Grid form, `velocities` keyed by 0-based step index:
 
 ```
 { "index": 4, "triggers": "x-x-x-x-x-x-x-x-", "velocities": { "0": 1, "2": 0.55, "4": 0.7, "6": 0.55 } }
 ```
 
-An eighth-note hi-hat with a strong downbeat, a light "and", a medium third and a light fourth — one line of
-data, and the groove appears.
+That is an eighth-note hi-hat with a strong downbeat, a light "and", a medium third and a light fourth — one
+line of data, and the groove appears.
+
+Positional form, `velocity` riding on each hit, no step index anywhere:
+
+```
+{ "index": 2, "hits": [{ "beat": 2, "offset": "downbeat", "velocity": 1 }, { "beat": 2, "offset": "a", "velocity": 0.4 }] }
+```
+
+Same idea written the way §4.1 recommends for triggers, so you never have to convert `beat` / `offset` into
+step indices just to add dynamics.
 
 What it buys you:
 
@@ -260,7 +289,8 @@ Two limits:
 - Velocity is **per step, not per individual hit** — the extra hits a ratchet or flam adds at a step share
   that step's velocity.
 - `velocities` keys are 0-based step indices while `hits`' `beat` is a 1-based beat number — **two different
-  bases coexist in the same request body; do not mix them.** `apply_fill_mode` **replaces the whole row** for
+  bases coexist in the same request body; do not mix them.** (`hits.velocity` sidesteps this: it rides on the
+  `beat` you already named, so there is no index to get wrong.) `apply_fill_mode` **replaces the whole row** for
   that voice and resets velocities to `1` (existing ratchets / flams survive) — so **apply fills first, then
   build velocity dynamics**.
 
@@ -391,10 +421,10 @@ order. Do not just apologise, and do not try to repair the old link.
 | `list_fill_modes` | The 20 fill modes (single row) |
 | `list_style_templates` | The 8 style skeletons (whole ensemble, mapped by role) |
 | `list_reference_presets` / `get_reference_preset` | Overview of the 22 built-in PRESETs / full grid |
-| `create_draft` | Create a draft (optionally starting from a built-in PRESET via `fromPresetId`) |
+| `create_draft` | Create a draft (optionally starting from a built-in PRESET via `fromPresetId`; tag its style with `tags`) |
 | `set_voice_grid` | **Write the pattern (most used)**; supports `mode:"append"` to layer |
 | `apply_fill_mode` / `apply_style_template` | Apply a fill mode / a style skeleton |
-| `update_draft` | Change transport, voice parameters, master chain, variation copy and clear |
+| `update_draft` | Change transport, voice parameters, master chain, `tags`, variation copy and clear |
 | `get_draft` / `validate_draft` / `list_drafts` / `delete_draft` | Read back / validate / list / delete |
 | `render_preset` | **Produce the two links** — `url` (landing page) + `deeplink` (`drumai://`) — optionally with `preview` and `diagnostics` |
 | `parse_preset` | Parse DHP2 share text / a DHP3 payload / a full link → editable `spec` |

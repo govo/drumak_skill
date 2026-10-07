@@ -20,6 +20,10 @@ You will encounter wire field names when reading `parse_preset`'s return value o
 | `var` | (no corresponding parameter; use the `variation` index) |
 | `i` | `index` / `name` / `role` |
 
+One field needs no row here: `tags` is spelled the same in the wire form (`spec` / payload) and in the
+tool parameters / returns, so there is no divergence to translate. (This is the DHP3 `spec` only — the older
+DHP2 share text spells it `tag=`, singular; see §18.) Its own trap is elsewhere — see §8 and §18.
+
 **Writing `g` / `r` / `f` / `vel` / `sub` in tool parameters errors outright with `Unrecognized key: "..."`.**
 This is deliberate: `create_draft`, `set_voice_grid`, and `update_draft.transport` use a strict schema,
 and would rather error than silently drop (silent dropping would make you believe it was written).
@@ -161,9 +165,18 @@ in a PRESET it is **0..100**, while MCP's `groove` is **0..1**. Using it as the 
   bars?: integer,                 // 1..16; defaults to 1
   groove?: [kind, amount],        // kind: straight|swing|shuffle|blues; amount 0..1
   humanize?: number,              // 0..1; defaults to 0
-  fromPresetId?: string           // start from a built-in PRESET
+  fromPresetId?: string,          // start from a built-in PRESET
+  tags?: string[]                 // style tags, from a fixed 14-value vocabulary (see below)
 }
 ```
+
+`tags` labels the PRESET's **musical style** (not the kit: `trap` means "this is a trap beat", whatever kit it
+uses) from exactly these 14 values: `rock` `pop` `funk` `hiphop` `trap` `house` `techno` `dnb` `lofi` `jazz`
+`latin` `rnb` `reggae` `acoustic`. A value outside that list is **rejected at the schema boundary**, with an
+error that lists every valid option (the schema is strict, like the other fields — an unknown tag is never
+dropped silently). The field is optional — omitting it means the PRESET simply has no tags — but tag by default:
+whenever you can tell what style the beat is, pass the matching tags. The app's PRESET library shows the tags and
+filters by them, so an untagged PRESET is harder for the user to find again.
 
 **`fromPresetId` overrides your parameters** (measured): `kit` / `name` / `bpm` / `cellsPerQuarter`
 are all taken from the PRESET, `bars` is **forced to 1**, and `ts` keeps the value you passed.
@@ -178,7 +191,8 @@ The complete path is recipe 4 in `recipes.md`.
 For `groove`'s `amount`, use the `GROOVE_DEFAULT_AMOUNT` magnitude: swing about 0.35, shuffle about 0.62,
 blues about 0.72. `straight`'s amount is always 0 (off).
 
-Returns `{ draftId, kitId, ts, cellsPerQuarter, bars, derived:{stepsPerBar, stepCount, offsets} }`.
+Returns `{ draftId, kitId, ts, cellsPerQuarter, bars, tags?, derived:{stepsPerBar, stepCount, offsets} }`.
+`tags` is present **only when the draft carries tags** — an empty tag list is omitted entirely, never `"tags": []`.
 
 **A draft with errors is not stored**: even if a `draftId` is returned, subsequent calls will say "the draft does not exist or has expired".
 So check `issues` right after creating one.
@@ -206,7 +220,8 @@ A `Voice` is located by exactly one of three (giving 0 or more than one errors):
   ratchets?: string,               // r present, - absent; adds a hit at the midpoint of that step (half a cell)
   flams?: string,                  // f present, - absent; adds a hit 18ms before that step
   velocities?: { "<step index>": 0..1 },   // sparse table, keys are 0-based indices as strings
-  hits?: [ { step } | { beat, offset } ]
+  hits?: [ { step, velocity? } | { beat, offset, velocity? } ]
+                                   // velocity 0..1, default 1; goes into the same vel table, no index to compute
 }
 ```
 
@@ -221,7 +236,8 @@ Behavior notes:
 - **`velocities` is the only way to give each hit its own strength**, and it is the lever to reach for on every
   pattern: keys are 0-based step indices, values `0..1`, omitted steps default to `1.0`. The app fully supports
   per-hit velocity (the user can drag it after import), so a pattern written entirely at `1.0` is a wasted
-  opportunity, not a neutral choice.
+  opportunity, not a neutral choice. The positional form reaches the same table: put `velocity` on the hit and
+  there is no index to compute at all.
 - An out-of-range `variation` throws `invalid_variation`.
 
 Returns `{ draftId, derived, voices:[{ index, grids }] }` — **it echoes the grids actually written**,
@@ -257,6 +273,7 @@ use it to check whether you wrote what you wanted.
 ```
 {
   draftId*: string,
+  tags?: string[],                 // replaces the whole tag list; [] clears it; omitted = untouched
   transport?: {
     kit?, bpm?, ts?, cellsPerQuarter?, bars?(1..16),
     ref?: "quarter" | "eighth" | "dottedQuarter",   // the counting unit for BPM
@@ -269,6 +286,10 @@ use it to check whether you wrote what you wanted.
 }
 ```
 
+- `tags` is a **top-level field**, a sibling of `transport` / `voices` / `master` / `variationOps` — **not** inside
+  `transport`. It **replaces** the whole tag list rather than merging, consistent with how the other fields behave:
+  `[]` clears every tag, and omitting it leaves the existing tags untouched. It takes the same 14-value vocabulary
+  as `create_draft` (§8), validated the same strict way (an unknown slug is rejected, not dropped).
 - `ref` and `ts` are two different things: `ref` is which note BPM counts by (default: dotted quarter under compound meter, otherwise quarter).
 - **Changing `bars` / `ts` / `cellsPerQuarter` rebuilds all grids** (left-aligned, excess truncated, shortfall padded with `-`,
   out-of-range keys in `velocities` deleted), and gives a `grid_resized` warning. **This is not a lossless operation.**
@@ -290,7 +311,8 @@ use it to check whether you wrote what you wanted.
 { draftId*: string }
 ```
 
-Returns the complete draft: transport parameters, `derived`, `voices[{ index, grids, velocities, params }]`.
+Returns the complete draft: transport parameters, `derived`, `voices[{ index, grids, velocities, params }]`,
+plus a `tags` key when the draft has tags (omitted when it has none), so you can read back what you set.
 **The only means of self-checking**; after changing structure (`bars` / `ts` / `kit`) you must take a look.
 
 Note that `grids` is an **array of length 4** (4 variations), and `grids[0]` is the one that sounds.
@@ -340,7 +362,8 @@ Returns:
   payload: **hand them over as returned; never build the deep link yourself by copying `p` out of `url`.**
 - `urlLength`: the length of the web link (the payload is long, usually several thousand characters; normal).
 - `copyNote`: a reminder that both links must be copied whole.
-- `preview`: readable grids (each voice's `grid` and `hitCount`), for showing the user or for checking yourself.
+- `preview`: readable grids (each voice's `grid` and `hitCount`), for showing the user or for checking yourself;
+  it also carries `tags` when the PRESET has any.
 - `diagnostics`: `{ warnings, derived }`.
 
 `include: ["url"]` returns `url` + `urlLength` + `deeplink` + `copyNote` together — the two links are one
@@ -350,6 +373,8 @@ Behavior notes:
 
 - It runs `validateSpec` first; **if that does not pass it fails outright** and returns `issues`. No half-finished output is produced.
 - **It produces DHP3 only**, not DHP2 share text.
+- The payload the two links encode **carries the tags**, so any link (or QR code) built from it preserves them:
+  whoever imports the PRESET gets its tags too.
 - Being very long (> about 330 steps) gives a `dhp2_step_limit_exceeded` warning —
   **that is not your output being rejected**, it is an advance notice: "this pattern converted to the old format would exceed the limit; older app versions cannot import it".
   DHP3 itself is not subject to a step limit, so just deliver it to the user normally.
@@ -369,6 +394,17 @@ Returns `{ ok, source, spec, readable?, diagnostics:{ valid, issues, droppedFiel
   (as well as `lowPass` / `highPass` / `variations` / `chain`).
 - DHP2 **does not carry the bar count**; `bars` is inferred and may differ from the original.
 - When the input contains a `DHPL;` multi-line container, only the 1st entry is parsed, and `notes` says so.
+- **Tags round-trip.** A DHP2 string may end with a `tag=` field, e.g. `DHP2;k=kit-10;b=124;n=...;d=...;tag=funk,hiphop`;
+  it is read into `spec.tags`, and `render_preset` writes it back out — so tags survive a parse → edit → render cycle.
+  The field is named `tag`, not `t`: in the older DHP1 format `t` already means the trigger rows.
+- **Tags are normalized on the way in.** Reading them from an external source (a pasted DHP2 string, or a `tags`
+  array in a hand-written `spec`) drops unknown slugs, removes duplicates, and sorts the rest into the fixed
+  vocabulary order — so a round trip may reorder tags and may drop ones it does not recognise. Note the schema
+  difference: this inline `spec` is `z.unknown()`, so an unknown slug there is **not** rejected — it passes through
+  the spec and is dropped on read-back. Only `create_draft` / `update_draft` use the strict schema that rejects an
+  unknown slug outright (§8, §12).
+- **An untagged PRESET has no `tags` key at all** in the returned `spec` — never `"tags": []`. To check whether
+  tags survived, look for the presence of the key, not for a non-empty array.
 
 When the input cannot be decoded, the failure carries a `code` and a `detail` block, which is how you tell
 "the link text was damaged" apart from "this pattern was never valid":

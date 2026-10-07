@@ -47,6 +47,10 @@ but swapping one for the other shifts everything by one step, **and both values 
 **Right way**: when you are unsure, use `beat` + `offset` throughout; when you do write `velocities`, key it with the
 0-based index of the same position, and say to yourself once "this one is 0-based".
 
+**The escape hatch**: putting `velocity` on the hit itself (`{"beat": 2, "offset": "a", "velocity": 0.4}`) keeps
+everything in the 1-based world — there is no index to convert and none to get wrong. Reach for that whenever you
+wrote the triggers with `hits`.
+
 ---
 
 ## 3. `fromPresetId` overwrites your inputs, `bars` is forced to 1, and it **copies only the grid**
@@ -237,6 +241,8 @@ rimshot as its worked example.
 Writing `g` / `r` / `f` / `vel` / `sub` in tool arguments reports `Unrecognized key` outright.
 There is exactly one point where the two sets of names switch: the `spec` emitted by `parse_preset`, which can be edited and handed
 straight to `render_preset` (that path uses the wire names); in every other case always use the tool names.
+`tags` is the one field that does **not** switch names — same spelling in tool arguments and in the `spec`. Its trap is a different
+one; see item 19.
 
 ---
 
@@ -310,3 +316,23 @@ raises no error, it just puts the whole pattern inside the same beat.
 
 **Right way**: when the user describes "how many notes go in one beat", ask clearly whether they mean the **time signature** or the **cell density**;
 if you are unsure, state how you intend to set it and let the user confirm.
+
+---
+
+## 19. `tags` is omitted when empty, and unknown slugs are dropped when reading but rejected when writing
+
+Tags are style metadata from a fixed 14-value vocabulary (`rock pop funk hiphop trap house techno dnb lofi
+jazz latin rnb reggae acoustic`); the app's PRESET library shows them and filters by them. Two traps:
+
+- **Empty means omitted, everywhere.** When a PRESET has no tags, the `tags` key is **absent** from every tool
+  return value, from the `spec`, and from the DHP2 share text — it is **never** `"tags": []`. So a "did my tags
+  stick?" check must look for the **presence of the key**, not for a non-empty array; an empty array is a state
+  that never appears.
+- **Dropped when reading, rejected when writing.** Tags read from an external source (a pasted DHP2 string, or a
+  `tags` array in a hand-written `spec`) are normalized: unknown slugs are dropped, duplicates removed, and the
+  survivors sorted into the fixed vocabulary order. But the `tags` input of `create_draft` / `update_draft` is a
+  **strict** schema — an unknown slug there is rejected outright, with an error listing every valid value, so
+  you self-correct from the message. The same slug read from a string is silently dropped. See tools.md §8 and §18.
+
+**Right way**: pass tags whenever you can tell the style (the app filters by them, so an untagged PRESET is harder
+to find again); when you read tags back, look for the key itself rather than its length.

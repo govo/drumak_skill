@@ -192,10 +192,13 @@ Key points:
   so it doesn't go through `set_voice_grid`.
 - After checking `diagnostics.droppedFields`, if it's non-empty tell the user in your reply what was dropped (DHP2 drops `compBypass`).
 - DHP2 carries no bar count, so `bars` is inferred backwards and may differ from the original — say so up front, don't change it silently.
+- **Tags survive the round trip.** If the pasted string ends with a `tag=` field (`DHP2;k=kit-10;b=124;n=...;d=...;tag=funk,hiphop`), it comes
+  back in `spec.tags` and `render_preset` writes it out again. An untagged PRESET has no `tags` key at all (never `[]`).
 
 **The more robust approach**: after `parse_preset` hands you the spec, rebuild a draft with `create_draft`,
 then edit it with `set_voice_grid`. That way you can check every step with `get_draft`, at the cost of a few extra calls.
 It's worth doing when the user pastes **someone else's** share text and asks for major changes.
+`create_draft` also takes `tags`, so pass the parsed `spec.tags` across to carry the labels over.
 
 ---
 
