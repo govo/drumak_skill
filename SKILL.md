@@ -120,7 +120,7 @@ Helpers:
   per voice
 
 **Tag the style by default.** `create_draft` (and `update_draft`) take a `tags` array labelling the
-PRESET's musical style, from a fixed 22-value vocabulary — `rock punk pop funk hiphop trap house techno dnb
+PRESET's musical style, from a fixed 21-value vocabulary — `rock punk pop funk hiphop trap house techno
 lofi jazz latin rnb reggae country blues metal soul disco edm world afrobeat`. The app's PRESET library shows
 the tags and lets the user filter by
 them, so an untagged PRESET is harder to find again: whenever you can tell what style the beat is, pass the
@@ -421,7 +421,7 @@ order. Do not just apologise, and do not try to repair the old link.
 | `list_grid_options` | Time signature × density → step structure and position names |
 | `list_fill_modes` | The 20 fill modes (single row) |
 | `list_style_templates` | The 8 style skeletons (whole ensemble, mapped by role) |
-| `list_reference_presets` / `get_reference_preset` | Overview of the 22 built-in PRESETs / full grid |
+| `list_reference_presets` / `get_reference_preset` | Overview of the 50 built-in PRESETs / full grid |
 | `create_draft` | Create a draft (optionally starting from a built-in PRESET via `fromPresetId`; tag its style with `tags`) |
 | `set_voice_grid` | **Write the pattern (most used)**; supports `mode:"append"` to layer |
 | `apply_fill_mode` / `apply_style_template` | Apply a fill mode / a style skeleton |

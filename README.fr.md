@@ -136,7 +136,7 @@ Tout client compatible MCP, notamment Claude Code, Claude Desktop et Cursor. Cla
 
 ### Quels styles musicaux peut-elle écrire ?
 
-Tous ceux qu'une boîte à rythmes peut exprimer : trap, house, techno, hip-hop et boom bap, funk, breakbeat, shuffle, rock, et metal avec double grosse caisse. Le service fournit huit squelettes de styles comme points de départ, vingt modes de remplissage pour varier une ligne et vingt-deux patterns de référence montrant à quoi ressemble un beat abouti dans l'app. L'assistant les adapte à votre description plutôt que de les appliquer tels quels.
+Tous ceux qu'une boîte à rythmes peut exprimer : trap, house, techno, hip-hop et boom bap, funk, breakbeat, shuffle, rock, et metal avec double grosse caisse. Le service fournit huit squelettes de styles comme points de départ, vingt modes de remplissage pour varier une ligne et cinquante patterns de référence montrant à quoi ressemble un beat abouti dans l'app. L'assistant les adapte à votre description plutôt que de les appliquer tels quels.
 
 ### Combien de kits de batterie propose-t-elle ?
 

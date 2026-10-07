@@ -321,7 +321,7 @@ if you are unsure, state how you intend to set it and let the user confirm.
 
 ## 19. `tags` is omitted when empty, and unknown slugs are dropped when reading but rejected when writing
 
-Tags are style metadata from a fixed 22-value vocabulary (`rock punk pop funk hiphop trap house techno dnb lofi
+Tags are style metadata from a fixed 21-value vocabulary (`rock punk pop funk hiphop trap house techno lofi
 jazz latin rnb reggae country blues metal soul disco edm world afrobeat`); the app's PRESET library shows them and filters by them. Two traps:
 
 - **Empty means omitted, everywhere.** When a PRESET has no tags, the `tags` key is **absent** from every tool

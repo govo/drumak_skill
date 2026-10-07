@@ -136,7 +136,7 @@ Jeder Client, der MCP unterstützt, darunter Claude Code, Claude Desktop und Cur
 
 ### Welche Musikstile kann er schreiben?
 
-Jeden Stil, den eine Drum-Machine ausdrücken kann: Trap, House, Techno, Hip-Hop und Boom Bap, Funk, Breakbeat, Shuffle, Rock und Metal mit Double Bass. Der Dienst liefert acht Stil-Skelette als Ausgangspunkt, zwanzig Fill-Modi zum Variieren einer Spur und zweiundzwanzig Referenz-Patterns, die zeigen, wie ein fertiger Beat in der App aussieht. Der Assistent passt jedes davon an deine Beschreibung an, statt es wortwörtlich anzuwenden.
+Jeden Stil, den eine Drum-Machine ausdrücken kann: Trap, House, Techno, Hip-Hop und Boom Bap, Funk, Breakbeat, Shuffle, Rock und Metal mit Double Bass. Der Dienst liefert acht Stil-Skelette als Ausgangspunkt, zwanzig Fill-Modi zum Variieren einer Spur und fünfzig Referenz-Patterns, die zeigen, wie ein fertiger Beat in der App aussieht. Der Assistent passt jedes davon an deine Beschreibung an, statt es wortwörtlich anzuwenden.
 
 ### Wie viele Drum-Kits gibt es?
 

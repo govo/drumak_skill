@@ -136,7 +136,7 @@ Any client that supports MCP, including Claude Code, Claude Desktop, and Cursor.
 
 ### What musical styles can it write?
 
-Any style that a drum machine can express: trap, house, techno, hip-hop and boom bap, funk, breakbeat, shuffle, rock, and metal with double bass. The service ships eight style skeletons as starting points, twenty fill modes for varying a row, and twenty-two reference patterns showing what a finished beat looks like in the app. The assistant adjusts any of them to your description rather than applying them verbatim.
+Any style that a drum machine can express: trap, house, techno, hip-hop and boom bap, funk, breakbeat, shuffle, rock, and metal with double bass. The service ships eight style skeletons as starting points, twenty fill modes for varying a row, and fifty reference patterns showing what a finished beat looks like in the app. The assistant adjusts any of them to your description rather than applying them verbatim.
 
 ### How many drum kits does it have?
 

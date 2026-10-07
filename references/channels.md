@@ -17,7 +17,7 @@ Smoke check:
 
 ```bash
 curl -s https://c1c1.online/drumai_mcp/healthz
-# {"ok":true,"version":"0.1.0","kits":24,"presets":22,"styleTemplates":8,"tools":19}
+# {"ok":true,"version":"0.1.0","kits":24,"presets":50,"styleTemplates":8,"tools":19}
 ```
 
 ---

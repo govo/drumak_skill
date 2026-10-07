@@ -164,8 +164,9 @@ This is the one most easily written as a "4-bar PRESET where only bar 1 makes so
 
 Key points:
 
-- **Besides `grids[0]` there are grids[1..3]**: a built-in PRESET stores 4 variations, and only index 0 makes sound.
-  Don't take grids[1] for "bar 2" — that's another variation.
+- **There may be grids beyond `grids[0]`**: the original 22 built-in PRESETs store 4 variations (the newer
+  single-pattern ones store just 1), and only index 0 makes sound. Don't take grids[1] for "bar 2" — that's
+  another variation.
 - If you want the last bar to differ, change the last 16 characters yourself in step 4 — **do not use the
   `lastBar` of `apply_fill_mode`**, it wipes the first 3 bars along with it (footguns item 10).
 - **Velocities and the master chain do not carry over.** `get_reference_preset` only gives you the grids,

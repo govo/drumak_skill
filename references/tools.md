@@ -128,7 +128,8 @@ it is scaled to the target step count when applied. A template is only a startin
 {}
 ```
 
-22 built-in PRESETs (11 basic + 11 triplet versions whose names carry a ` T` and whose ids end in `-t`).
+50 built-in PRESETs. The original 22 come in pairs — 11 basic + 11 triplet versions whose names carry a
+` T` and whose ids end in `-t`; the other 28 are single-pattern presets with no triplet twin.
 Returns `kitId`, `bpm`, `cellsPerQuarter`, `isTriplet`, `stepCount`, `voiceSummary`.
 
 ### 7. `get_reference_preset`
@@ -137,9 +138,10 @@ Returns `kitId`, `bpm`, `cellsPerQuarter`, `isTriplet`, `stepCount`, `voiceSumma
 { presetId*: string }      // e.g. "preset-slime-time"
 ```
 
-Returns the complete grids of 8 voices × 4 variations.
-**Only the 1st variation (index 0) sounds**; looking at the other three is only to understand the author's intent.
-Each voice's `grids` is an **array of length 4**, and `grids[0]` is the one that sounds —
+Returns the complete grids of 8 voices × 1..4 variations.
+**Only the 1st variation (index 0) sounds**; looking at the others is only to understand the author's intent.
+Each voice's `grids` is an **array of length 1..4** — 4 for the original 22 presets, 1 for the newer
+single-pattern ones (whose names have no ` T` suffix) — and `grids[0]` is the one that sounds —
 `grids[1]` is not "bar 2".
 
 This reference library has **only trigger grids**: no velocities, ratchets, flams, or master chain.
@@ -166,12 +168,12 @@ in a PRESET it is **0..100**, while MCP's `groove` is **0..1**. Using it as the 
   groove?: [kind, amount],        // kind: straight|swing|shuffle|blues; amount 0..1
   humanize?: number,              // 0..1; defaults to 0
   fromPresetId?: string,          // start from a built-in PRESET
-  tags?: string[]                 // style tags, from a fixed 22-value vocabulary (see below)
+  tags?: string[]                 // style tags, from a fixed 21-value vocabulary (see below)
 }
 ```
 
 `tags` labels the PRESET's **musical style** (not the kit: `trap` means "this is a trap beat", whatever kit it
-uses) from exactly these 22 values: `rock` `punk` `pop` `funk` `hiphop` `trap` `house` `techno` `dnb` `lofi`
+uses) from exactly these 21 values: `rock` `punk` `pop` `funk` `hiphop` `trap` `house` `techno` `lofi`
 `jazz` `latin` `rnb` `reggae` `country` `blues` `metal` `soul` `disco` `edm` `world` `afrobeat`. A value outside that list is **rejected at the schema boundary**, with an
 error that lists every valid option (the schema is strict, like the other fields — an unknown tag is never
 dropped silently). The field is optional — omitting it means the PRESET simply has no tags — but tag by default:
@@ -288,7 +290,7 @@ use it to check whether you wrote what you wanted.
 
 - `tags` is a **top-level field**, a sibling of `transport` / `voices` / `master` / `variationOps` — **not** inside
   `transport`. It **replaces** the whole tag list rather than merging, consistent with how the other fields behave:
-  `[]` clears every tag, and omitting it leaves the existing tags untouched. It takes the same 22-value vocabulary
+  `[]` clears every tag, and omitting it leaves the existing tags untouched. It takes the same 21-value vocabulary
   as `create_draft` (§8), validated the same strict way (an unknown slug is rejected, not dropped).
 - `ref` and `ts` are two different things: `ref` is which note BPM counts by (default: dotted quarter under compound meter, otherwise quarter).
 - **Changing `bars` / `ts` / `cellsPerQuarter` rebuilds all grids** (left-aligned, excess truncated, shortfall padded with `-`,
@@ -315,7 +317,9 @@ Returns the complete draft: transport parameters, `derived`, `voices[{ index, gr
 plus a `tags` key when the draft has tags (omitted when it has none), so you can read back what you set.
 **The only means of self-checking**; after changing structure (`bars` / `ts` / `kit`) you must take a look.
 
-Note that `grids` is an **array of length 4** (4 variations), and `grids[0]` is the one that sounds.
+Note that `grids` has **one entry per variation actually written**, and `grids[0]` is the one that sounds.
+Writing only `variation: 0` (the default) gives an array of length 1; starting from a built-in PRESET via
+`fromPresetId` gives as many entries as that PRESET stores (4 for the original 22, 1 for the newer ones).
 
 ### 14. `validate_draft`
 

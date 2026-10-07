@@ -136,7 +136,7 @@ Cualquier cliente compatible con MCP, incluidos Claude Code, Claude Desktop y Cu
 
 ### ¿Qué estilos musicales puede escribir?
 
-Cualquier estilo que pueda expresar una caja de ritmos: trap, house, techno, hip-hop y boom bap, funk, breakbeat, shuffle, rock y metal con doble bombo. El servicio incluye ocho esqueletos de estilo como punto de partida, veinte modos de relleno para variar una fila y veintidós patrones de referencia que muestran cómo se ve un ritmo terminado en la aplicación. El asistente los adapta a tu descripción en lugar de aplicarlos tal cual.
+Cualquier estilo que pueda expresar una caja de ritmos: trap, house, techno, hip-hop y boom bap, funk, breakbeat, shuffle, rock y metal con doble bombo. El servicio incluye ocho esqueletos de estilo como punto de partida, veinte modos de relleno para variar una fila y cincuenta patrones de referencia que muestran cómo se ve un ritmo terminado en la aplicación. El asistente los adapta a tu descripción en lugar de aplicarlos tal cual.
 
 ### ¿Cuántos kits de batería tiene?
 
