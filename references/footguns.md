@@ -288,7 +288,7 @@ see SKILL.md §6, "If the user comes back with a broken link".
 ## 16. `render_preset` only produces DHP3; 330 steps is the limit of the **old format**, not your limit
 
 What `render_preset` produces is a DHP3 link, **not bound by a step limit**.
-Above roughly 330 steps (8 voices) it gives the `dhp2_step_limit_exceeded` warning —
+Above roughly 330 steps (with an 8-voice kit; the exact ceiling scales down as the kit has more voices) it gives the `dhp2_step_limit_exceeded` warning —
 that is saying "converting this pattern to DHP2 share text would exceed the limit and an older App version could not import it",
 **not that there is something wrong with what you produced**. Deliver as normal; there is no need to shorten the pattern for this.
 

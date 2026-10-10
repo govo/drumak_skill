@@ -43,7 +43,7 @@ With `includeInstruments: true` there is an extra `instruments[{ index, name, ro
 
 - The `style` filter is **normalized bidirectional containment** (strips `-` and whitespace, lowercases); `"trap"` can match a `hip-hop` kit.
 - When nothing matches it returns `{ ok:false, allStyles:[...] }`; use it to see which styles are available.
-- 24 kits: `kit-0` to `kit-25` (the numbering is not contiguous).
+- 25 kits: `kit-0` to `kit-26` (the numbering is not contiguous). Voice counts are not uniform either: every kit has 8 voices except `kit-26` Metronome, which has 15.
 
 ### 2. `get_kit`
 
@@ -128,7 +128,7 @@ it is scaled to the target step count when applied. A template is only a startin
 {}
 ```
 
-50 built-in PRESETs. The original 22 come in pairs — 11 basic + 11 triplet versions whose names carry a
+54 built-in PRESETs. The original 22 come in pairs — 11 basic + 11 triplet versions whose names carry a
 ` T` and whose ids end in `-t`; the other 28 are single-pattern presets with no triplet twin.
 Returns `kitId`, `bpm`, `cellsPerQuarter`, `isTriplet`, `stepCount`, `voiceSummary`.
 
@@ -138,7 +138,7 @@ Returns `kitId`, `bpm`, `cellsPerQuarter`, `isTriplet`, `stepCount`, `voiceSumma
 { presetId*: string }      // e.g. "preset-slime-time"
 ```
 
-Returns the complete grids of 8 voices × 1..4 variations.
+Returns the complete grids of the preset's kit voices × 1..4 variations.
 **Only the 1st variation (index 0) sounds**; looking at the others is only to understand the author's intent.
 Each voice's `grids` is an **array of length 1..4** — 4 for the original 22 presets, 1 for the newer
 single-pattern ones (whose names have no ` T` suffix) — and `grids[0]` is the one that sounds —

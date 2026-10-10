@@ -93,7 +93,7 @@ not work if they send it to a phone or to someone else — do not doubt your own
 
 ```
 1. list_kits            pick a kit (optionally filtered by style; or ask the user what style they want)
-2. get_kit              get that kit's 8 voices, their indices, roles, and usage hints
+2. get_kit              get that kit's voices, their indices, roles, and usage hints (kits have 8 to 16 voices)
 3. list_grid_options    confirm the steps-per-bar for the time signature × cellsPerQuarter
 4. create_draft         create the draft (name / bpm / ts / cellsPerQuarter / bars / groove / humanize / tags)
 5. set_voice_grid       write the pattern — your only real musical decision, and the step you iterate on
@@ -302,8 +302,8 @@ when you deliver — it tells the user the dynamics are theirs to keep shaping.
 ### 4.6 Sound design: the Mixer is a musical decision too
 
 Every voice carries five Mixer parameters — `decay` / `tune` / `filter` / `pan` / `volume` — written through
-`update_draft`'s `voices[].params`. This is **not a snare-only technique**: every one of the 8 voices in every
-kit is adjustable the same way, and a small nudge is enough to move a voice off "this kit's stock sample" onto a
+`update_draft`'s `voices[].params`. This is **not a snare-only technique**: every voice in every kit
+is adjustable the same way, and a small nudge is enough to move a voice off "this kit's stock sample" onto a
 distinct sound, which in turn changes how the groove reads. Neutral is what `get_kit` reports as each voice's
 default — `tune` / `filter` / `decay` / `pan` at `50`, `volume` at `100` (what the app's UI calls **Level**) —
 so "turn it up" means above 50, "turn it down" means below 100. Unlike the master chain, voice params **do** come
@@ -417,11 +417,11 @@ order. Do not just apologise, and do not try to repair the old link.
 
 | Tool | What it does |
 | --- | --- |
-| `list_kits` / `get_kit` | The 24 kits / one kit's voice table (**must call before writing a pattern**) |
+| `list_kits` / `get_kit` | The 25 kits / one kit's voice table (**must call before writing a pattern**) |
 | `list_grid_options` | Time signature × density → step structure and position names |
 | `list_fill_modes` | The 20 fill modes (single row) |
 | `list_style_templates` | The 8 style skeletons (whole ensemble, mapped by role) |
-| `list_reference_presets` / `get_reference_preset` | Overview of the 50 built-in PRESETs / full grid |
+| `list_reference_presets` / `get_reference_preset` | Overview of the 54 built-in PRESETs / full grid |
 | `create_draft` | Create a draft (optionally starting from a built-in PRESET via `fromPresetId`; tag its style with `tags`) |
 | `set_voice_grid` | **Write the pattern (most used)**; supports `mode:"append"` to layer |
 | `apply_fill_mode` / `apply_style_template` | Apply a fill mode / a style skeleton |

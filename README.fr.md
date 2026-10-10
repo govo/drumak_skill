@@ -16,10 +16,10 @@ Ce dépôt contient la skill qui rend tout cela possible. Elle relie un assistan
 
 ## Qu'est-ce que Drum AI ?
 
-**Drum AI est une boîte à rythmes IA et une app d'entraînement, pour iPhone, iPad et Mac.** Importez un morceau : elle sépare la batterie, détecte le tempo et transforme le résultat en un pattern modifiable. À partir de là, c'est une boîte à rythmes complète : 24 kits pro, un séquenceur 16/32 pas, une table de mixage avec compresseur et phaser, l'humanisation, et un tempo drill pour amener un passage difficile au tempo.
+**Drum AI est une boîte à rythmes IA et une app d'entraînement, pour iPhone, iPad et Mac.** Importez un morceau : elle sépare la batterie, détecte le tempo et transforme le résultat en un pattern modifiable. À partir de là, c'est une boîte à rythmes complète : 25 kits pro, un séquenceur 16/32 pas, une table de mixage avec compresseur et phaser, l'humanisation, et un tempo drill pour amener un passage difficile au tempo.
 
 - **Reconnaissance de batterie par IA.** La séparation de pistes sur l'appareil isole la grosse caisse, la caisse claire, le charleston et les cymbales de tout morceau que vous importez ou enregistrez.
-- **24 kits pro, séquenceur 16/32 pas.** Niveau, panoramique, filtre, accord et decay par voix, avec 4/4, 3/4, 6/8, triolets et blues shuffle.
+- **25 kits pro, séquenceur 16/32 pas.** Niveau, panoramique, filtre, accord et decay par voix, avec 4/4, 3/4, 6/8, triolets et blues shuffle.
 - **Génération de patterns en un geste.** Un morceau reconnu devient un pattern modifiable que vous pouvez déplacer, copier mesure par mesure et regroover.
 - **Tempo Drill.** Boucle AB, segments de vitesse multiples, décompte et passage au suivant, pensés pour travailler les passages trop rapides.
 - **Téléchargement gratuit.** La version gratuite couvre la boîte à rythmes et les fonctions d'entraînement ; les fonctions de reconnaissance IA sont soumises à des limites hebdomadaires. Un abonnement Drum AI Pro facultatif les supprime.
@@ -90,7 +90,7 @@ Il ne reste plus qu'à décrire le rythme voulu. Lancez `/mcp` pour vérifier qu
 | Prix | Téléchargement gratuit ; abonnement Drum AI Pro facultatif |
 | Version gratuite | Boîte à rythmes et fonctions d'entraînement complètes ; limites hebdomadaires sur la reconnaissance IA |
 | Modèle de reconnaissance | LarsNet, exécuté sur l'appareil |
-| Kits de batterie | 24 |
+| Kits de batterie | 25 |
 | Pistes séparées | Grosse caisse, caisse claire, charleston, cymbales |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | Site officiel | <https://c1c1.online/drumanalyse/> |
@@ -104,7 +104,7 @@ Il ne reste plus qu'à décrire le rythme voulu. Lancez `/mcp` pour vérifier qu
 
 ### Qu'est-ce que Drum AI ?
 
-Drum AI est une app pour iPhone, iPad et Mac qui réunit une boîte à rythmes, une reconnaissance de batterie par IA et un outil d'entraînement. Vous pouvez importer un morceau et laisser l'app transcrire la batterie en un pattern modifiable, ou écrire un rythme de zéro avec le séquenceur pas à pas et ses 24 kits. Le téléchargement est gratuit, et tout le traitement IA se fait sur votre propre appareil.
+Drum AI est une app pour iPhone, iPad et Mac qui réunit une boîte à rythmes, une reconnaissance de batterie par IA et un outil d'entraînement. Vous pouvez importer un morceau et laisser l'app transcrire la batterie en un pattern modifiable, ou écrire un rythme de zéro avec le séquenceur pas à pas et ses 25 kits. Le téléchargement est gratuit, et tout le traitement IA se fait sur votre propre appareil.
 
 ### Drum AI est-elle une boîte à rythmes ou une app de transcription ?
 
@@ -136,11 +136,11 @@ Tout client compatible MCP, notamment Claude Code, Claude Desktop et Cursor. Cla
 
 ### Quels styles musicaux peut-elle écrire ?
 
-Tous ceux qu'une boîte à rythmes peut exprimer : trap, house, techno, hip-hop et boom bap, funk, breakbeat, shuffle, rock, et metal avec double grosse caisse. Le service fournit huit squelettes de styles comme points de départ, vingt modes de remplissage pour varier une ligne et cinquante patterns de référence montrant à quoi ressemble un beat abouti dans l'app. L'assistant les adapte à votre description plutôt que de les appliquer tels quels.
+Tous ceux qu'une boîte à rythmes peut exprimer : trap, house, techno, hip-hop et boom bap, funk, breakbeat, shuffle, rock, et metal avec double grosse caisse. Le service fournit huit squelettes de styles comme points de départ, vingt modes de remplissage pour varier une ligne et cinquante-quatre patterns de référence montrant à quoi ressemble un beat abouti dans l'app. L'assistant les adapte à votre description plutôt que de les appliquer tels quels.
 
 ### Combien de kits de batterie propose-t-elle ?
 
-Vingt-quatre kits, les mêmes que ceux livrés avec l'app. Ils couvrent le terrain électronique et acoustique, des 808 et des kits trap aux ensembles house, techno, acoustiques et percussions. L'assistant choisit un kit en fonction du style demandé, et vous pouvez ensuite changer de kit dans l'app sans réécrire le pattern.
+Vingt-cinq kits, les mêmes que ceux livrés avec l'app. Ils couvrent le terrain électronique et acoustique, des 808 et des kits trap aux ensembles house, techno, acoustiques, percussions et métronome. L'assistant choisit un kit en fonction du style demandé, et vous pouvez ensuite changer de kit dans l'app sans réécrire le pattern.
 
 ### Peut-elle transcrire la batterie d'un vrai morceau ?
 

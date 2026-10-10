@@ -16,10 +16,10 @@ This repository is the skill that makes that work. It connects an AI assistant t
 
 ## What is Drum AI?
 
-**Drum AI is an AI drum machine and practice app for iPhone, iPad, and Mac.** Import a song and it separates the drums, detects the tempo, and turns the result into an editable pattern. From there it is a full drum machine: 24 pro kits, a 16/32-step sequencer, a mixer with compressor and phaser, humanize, and a tempo drill for working a hard passage up to speed.
+**Drum AI is an AI drum machine and practice app for iPhone, iPad, and Mac.** Import a song and it separates the drums, detects the tempo, and turns the result into an editable pattern. From there it is a full drum machine: 25 pro kits, a 16/32-step sequencer, a mixer with compressor and phaser, humanize, and a tempo drill for working a hard passage up to speed.
 
 - **AI drum recognition.** On-device stem separation pulls the kick, snare, hi-hat, and cymbals out of any song you import or record.
-- **24 pro kits, 16/32-step sequencer.** Per-voice level, pan, filter, tune, and decay, with 4/4, 3/4, 6/8, triplets, and blues shuffle.
+- **25 pro kits, 16/32-step sequencer.** Per-voice level, pan, filter, tune, and decay, with 4/4, 3/4, 6/8, triplets, and blues shuffle.
 - **One-tap pattern generation.** A recognized song becomes an editable pattern you can drag, copy bar by bar, and re-groove.
 - **Tempo Drill.** AB loop, multiple speed segments, count-in, and skip-to-next, made for practising the parts that are too fast.
 - **Free to download.** The free tier covers the drum machine and the practice features; the AI recognition features carry weekly limits. An optional Drum AI Pro subscription removes them.
@@ -90,7 +90,7 @@ Then just describe the beat you want. Run `/mcp` to confirm the server is connec
 | Price | Free download; optional Drum AI Pro subscription |
 | Free tier | Full drum machine and practice features; weekly limits on AI recognition |
 | Recognition model | LarsNet, running on-device |
-| Drum kits | 24 |
+| Drum kits | 25 |
 | Stems separated | Kick, snare, hi-hat, cymbals |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | Official website | <https://c1c1.online/drumanalyse/> |
@@ -104,7 +104,7 @@ Then just describe the beat you want. Run `/mcp` to confirm the server is connec
 
 ### What is Drum AI?
 
-Drum AI is an app for iPhone, iPad, and Mac that combines a drum machine, AI drum recognition, and a practice tool. You can import a song and let it transcribe the drums into an editable pattern, or write a beat yourself from scratch with the step sequencer and its 24 kits. It is free to download, and all of the AI processing happens on your own device.
+Drum AI is an app for iPhone, iPad, and Mac that combines a drum machine, AI drum recognition, and a practice tool. You can import a song and let it transcribe the drums into an editable pattern, or write a beat yourself from scratch with the step sequencer and its 25 kits. It is free to download, and all of the AI processing happens on your own device.
 
 ### Is Drum AI a drum machine or a transcription app?
 
@@ -136,11 +136,11 @@ Any client that supports MCP, including Claude Code, Claude Desktop, and Cursor.
 
 ### What musical styles can it write?
 
-Any style that a drum machine can express: trap, house, techno, hip-hop and boom bap, funk, breakbeat, shuffle, rock, and metal with double bass. The service ships eight style skeletons as starting points, twenty fill modes for varying a row, and fifty reference patterns showing what a finished beat looks like in the app. The assistant adjusts any of them to your description rather than applying them verbatim.
+Any style that a drum machine can express: trap, house, techno, hip-hop and boom bap, funk, breakbeat, shuffle, rock, and metal with double bass. The service ships eight style skeletons as starting points, twenty fill modes for varying a row, and fifty-four reference patterns showing what a finished beat looks like in the app. The assistant adjusts any of them to your description rather than applying them verbatim.
 
 ### How many drum kits does it have?
 
-Twenty-four kits, the same ones the app ships with. They cover electronic and acoustic territory, from 808s and trap kits to house, techno, acoustic, and percussion sets. The assistant picks a kit to match the style you asked for, and you can swap kits in the app afterwards without rewriting the pattern.
+Twenty-five kits, the same ones the app ships with. They cover electronic and acoustic territory, from 808s and trap kits to house, techno, acoustic, percussion, and click sets. The assistant picks a kit to match the style you asked for, and you can swap kits in the app afterwards without rewriting the pattern.
 
 ### Can it transcribe a real song's drums?
 

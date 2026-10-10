@@ -16,10 +16,10 @@ Dieses Repository ist der Skill, der das möglich macht. Er verbindet einen KI-A
 
 ## Was ist Drum AI?
 
-**Drum AI ist eine KI-Drum-Machine und Übungs-App für iPhone, iPad und Mac.** Importiere einen Song, und sie trennt die Drums, erkennt das Tempo und macht daraus ein editierbares Pattern. Von dort aus ist sie eine vollwertige Drum-Machine: 24 Profi-Kits, ein 16/32-Step-Sequencer, ein Mixer mit Kompressor und Phaser, Humanize und ein Tempo-Drill, mit dem du dir eine schwere Passage auf Tempo hocharbeitest.
+**Drum AI ist eine KI-Drum-Machine und Übungs-App für iPhone, iPad und Mac.** Importiere einen Song, und sie trennt die Drums, erkennt das Tempo und macht daraus ein editierbares Pattern. Von dort aus ist sie eine vollwertige Drum-Machine: 25 Profi-Kits, ein 16/32-Step-Sequencer, ein Mixer mit Kompressor und Phaser, Humanize und ein Tempo-Drill, mit dem du dir eine schwere Passage auf Tempo hocharbeitest.
 
 - **KI-Schlagzeugerkennung.** Die Stem-Trennung auf dem Gerät holt Kick, Snare, Hi-Hat und Becken aus jedem Song, den du importierst oder aufnimmst.
-- **24 Profi-Kits, 16/32-Step-Sequencer.** Level, Pan, Filter, Tune und Decay pro Stimme, dazu 4/4, 3/4, 6/8, Triolen und Blues-Shuffle.
+- **25 Profi-Kits, 16/32-Step-Sequencer.** Level, Pan, Filter, Tune und Decay pro Stimme, dazu 4/4, 3/4, 6/8, Triolen und Blues-Shuffle.
 - **Pattern-Erzeugung per Fingertipp.** Aus einem erkannten Song wird ein editierbares Pattern, das du verschieben, Takt für Takt kopieren und neu grooven kannst.
 - **Tempo Drill.** AB-Loop, mehrere Geschwindigkeitssegmente, Count-in und Skip-to-Next – gemacht zum Üben der Stellen, die zu schnell sind.
 - **Kostenloser Download.** Die kostenlose Version deckt die Drum-Machine und die Übungsfunktionen ab; die KI-Erkennung hat wöchentliche Limits. Ein optionales Drum AI Pro-Abonnement hebt sie auf.
@@ -90,7 +90,7 @@ Dann beschreib einfach den Beat, den du haben willst. Mit `/mcp` prüfst du, ob 
 | Preis | Kostenloser Download; optionales Drum AI Pro-Abonnement |
 | Kostenlose Version | Komplette Drum-Machine und Übungsfunktionen; wöchentliche Limits bei der KI-Erkennung |
 | Erkennungsmodell | LarsNet, läuft auf dem Gerät |
-| Drum-Kits | 24 |
+| Drum-Kits | 25 |
 | Getrennte Stems | Kick, Snare, Hi-Hat, Becken |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | Offizielle Website | <https://c1c1.online/drumanalyse/> |
@@ -104,7 +104,7 @@ Dann beschreib einfach den Beat, den du haben willst. Mit `/mcp` prüfst du, ob 
 
 ### Was ist Drum AI?
 
-Drum AI ist eine App für iPhone, iPad und Mac, die eine Drum-Machine, KI-Schlagzeugerkennung und ein Übungstool vereint. Du kannst einen Song importieren und die Drums in ein editierbares Pattern transkribieren lassen – oder mit dem Step-Sequencer und seinen 24 Kits selbst einen Beat von Grund auf schreiben. Der Download ist kostenlos, und die gesamte KI-Verarbeitung findet auf deinem eigenen Gerät statt.
+Drum AI ist eine App für iPhone, iPad und Mac, die eine Drum-Machine, KI-Schlagzeugerkennung und ein Übungstool vereint. Du kannst einen Song importieren und die Drums in ein editierbares Pattern transkribieren lassen – oder mit dem Step-Sequencer und seinen 25 Kits selbst einen Beat von Grund auf schreiben. Der Download ist kostenlos, und die gesamte KI-Verarbeitung findet auf deinem eigenen Gerät statt.
 
 ### Ist Drum AI eine Drum-Machine oder eine Transkriptions-App?
 
@@ -136,11 +136,11 @@ Jeder Client, der MCP unterstützt, darunter Claude Code, Claude Desktop und Cur
 
 ### Welche Musikstile kann er schreiben?
 
-Jeden Stil, den eine Drum-Machine ausdrücken kann: Trap, House, Techno, Hip-Hop und Boom Bap, Funk, Breakbeat, Shuffle, Rock und Metal mit Double Bass. Der Dienst liefert acht Stil-Skelette als Ausgangspunkt, zwanzig Fill-Modi zum Variieren einer Spur und fünfzig Referenz-Patterns, die zeigen, wie ein fertiger Beat in der App aussieht. Der Assistent passt jedes davon an deine Beschreibung an, statt es wortwörtlich anzuwenden.
+Jeden Stil, den eine Drum-Machine ausdrücken kann: Trap, House, Techno, Hip-Hop und Boom Bap, Funk, Breakbeat, Shuffle, Rock und Metal mit Double Bass. Der Dienst liefert acht Stil-Skelette als Ausgangspunkt, zwanzig Fill-Modi zum Variieren einer Spur und vierundfünfzig Referenz-Patterns, die zeigen, wie ein fertiger Beat in der App aussieht. Der Assistent passt jedes davon an deine Beschreibung an, statt es wortwörtlich anzuwenden.
 
 ### Wie viele Drum-Kits gibt es?
 
-Vierundzwanzig Kits – dieselben, die auch die App mitbringt. Sie decken elektronisches und akustisches Terrain ab, von 808s und Trap-Kits bis zu House-, Techno-, Akustik- und Percussion-Sets. Der Assistent wählt ein Kit passend zum gewünschten Stil, und du kannst das Kit in der App später austauschen, ohne das Pattern neu zu schreiben.
+Fünfundzwanzig Kits – dieselben, die auch die App mitbringt. Sie decken elektronisches und akustisches Terrain ab, von 808s und Trap-Kits bis zu House-, Techno-, Akustik-, Percussion- und Metronom-Sets. Der Assistent wählt ein Kit passend zum gewünschten Stil, und du kannst das Kit in der App später austauschen, ohne das Pattern neu zu schreiben.
 
 ### Kann er die Drums eines echten Songs transkribieren?
 

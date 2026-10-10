@@ -16,10 +16,10 @@ Este repositorio es la skill que lo hace posible. Conecta un asistente de IA con
 
 ## ¿Qué es Drum AI?
 
-**Drum AI es una caja de ritmos con IA y una aplicación de práctica para iPhone, iPad y Mac.** Importa una canción y separa la batería, detecta el tempo y convierte el resultado en un patrón editable. A partir de ahí es una caja de ritmos completa: 24 kits profesionales, un secuenciador de 16/32 pasos, un mezclador con compresor y phaser, humanize y un tempo drill para llevar un pasaje difícil hasta la velocidad real.
+**Drum AI es una caja de ritmos con IA y una aplicación de práctica para iPhone, iPad y Mac.** Importa una canción y separa la batería, detecta el tempo y convierte el resultado en un patrón editable. A partir de ahí es una caja de ritmos completa: 25 kits profesionales, un secuenciador de 16/32 pasos, un mezclador con compresor y phaser, humanize y un tempo drill para llevar un pasaje difícil hasta la velocidad real.
 
 - **Reconocimiento de batería con IA.** La separación de pistas en el propio dispositivo extrae el bombo, la caja, el charles y los platillos de cualquier canción que importes o grabes.
-- **24 kits profesionales, secuenciador de 16/32 pasos.** Nivel, panorama, filtro, afinación y caída por voz, con 4/4, 3/4, 6/8, tresillos y blues shuffle.
+- **25 kits profesionales, secuenciador de 16/32 pasos.** Nivel, panorama, filtro, afinación y caída por voz, con 4/4, 3/4, 6/8, tresillos y blues shuffle.
 - **Generación de patrones con un toque.** Una canción reconocida se convierte en un patrón editable que puedes arrastrar, copiar compás a compás y cambiarle el groove.
 - **Tempo Drill.** Bucle AB, varios tramos de velocidad, cuenta de entrada y salto al siguiente, pensado para practicar las partes que van demasiado rápido.
 - **Descarga gratuita.** El plan gratuito cubre la caja de ritmos y las funciones de práctica; las funciones de reconocimiento con IA tienen límites semanales. Una suscripción opcional a Drum AI Pro los elimina.
@@ -90,7 +90,7 @@ Después, solo tienes que describir el ritmo que quieras. Ejecuta `/mcp` para co
 | Precio | Descarga gratuita; suscripción opcional a Drum AI Pro |
 | Plan gratuito | Caja de ritmos y funciones de práctica completas; límites semanales en el reconocimiento con IA |
 | Modelo de reconocimiento | LarsNet, ejecutado en el propio dispositivo |
-| Kits de batería | 24 |
+| Kits de batería | 25 |
 | Pistas separadas | Bombo, caja, charles y platillos |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | Sitio web oficial | <https://c1c1.online/drumanalyse/> |
@@ -104,7 +104,7 @@ Después, solo tienes que describir el ritmo que quieras. Ejecuta `/mcp` para co
 
 ### ¿Qué es Drum AI?
 
-Drum AI es una aplicación para iPhone, iPad y Mac que combina una caja de ritmos, el reconocimiento de batería con IA y una herramienta de práctica. Puedes importar una canción y dejar que transcriba la batería en un patrón editable, o crear tú mismo un ritmo desde cero con el secuenciador por pasos y sus 24 kits. Es de descarga gratuita y todo el procesamiento de IA se realiza en tu propio dispositivo.
+Drum AI es una aplicación para iPhone, iPad y Mac que combina una caja de ritmos, el reconocimiento de batería con IA y una herramienta de práctica. Puedes importar una canción y dejar que transcriba la batería en un patrón editable, o crear tú mismo un ritmo desde cero con el secuenciador por pasos y sus 25 kits. Es de descarga gratuita y todo el procesamiento de IA se realiza en tu propio dispositivo.
 
 ### ¿Drum AI es una caja de ritmos o una aplicación de transcripción?
 
@@ -136,11 +136,11 @@ Cualquier cliente compatible con MCP, incluidos Claude Code, Claude Desktop y Cu
 
 ### ¿Qué estilos musicales puede escribir?
 
-Cualquier estilo que pueda expresar una caja de ritmos: trap, house, techno, hip-hop y boom bap, funk, breakbeat, shuffle, rock y metal con doble bombo. El servicio incluye ocho esqueletos de estilo como punto de partida, veinte modos de relleno para variar una fila y cincuenta patrones de referencia que muestran cómo se ve un ritmo terminado en la aplicación. El asistente los adapta a tu descripción en lugar de aplicarlos tal cual.
+Cualquier estilo que pueda expresar una caja de ritmos: trap, house, techno, hip-hop y boom bap, funk, breakbeat, shuffle, rock y metal con doble bombo. El servicio incluye ocho esqueletos de estilo como punto de partida, veinte modos de relleno para variar una fila y cincuenta y cuatro patrones de referencia que muestran cómo se ve un ritmo terminado en la aplicación. El asistente los adapta a tu descripción en lugar de aplicarlos tal cual.
 
 ### ¿Cuántos kits de batería tiene?
 
-Veinticuatro kits, los mismos que incluye la aplicación. Cubren tanto el terreno electrónico como el acústico, desde cajas 808 y kits de trap hasta conjuntos de house, techno, acústicos y de percusión. El asistente elige un kit que encaje con el estilo que has pedido, y después puedes cambiar de kit en la aplicación sin tener que reescribir el patrón.
+Veinticinco kits, los mismos que incluye la aplicación. Cubren tanto el terreno electrónico como el acústico, desde cajas 808 y kits de trap hasta conjuntos de house, techno, acústicos, de percusión y de metrónomo. El asistente elige un kit que encaje con el estilo que has pedido, y después puedes cambiar de kit en la aplicación sin tener que reescribir el patrón.
 
 ### ¿Puede transcribir la batería de una canción real?
 
