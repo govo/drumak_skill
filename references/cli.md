@@ -29,7 +29,7 @@ Alternative without Homebrew — the binaries are on
 [Releases](https://github.com/govo/drumai-cli/releases/latest), one per architecture:
 
 ```bash
-tar -xzf drumai-0.1.0-darwin-arm64.tar.gz     # or -x64 on Intel
+tar -xzf drumai-0.1.1-darwin-arm64.tar.gz     # or -x64 on Intel
 sudo mv drumai /usr/local/bin/
 ```
 
@@ -62,7 +62,7 @@ with the MCP tools so the user still gets their beat.
 | Turns a link into a file the user opens | link only | link only (same) |
 
 The last three rows are the interesting ones: with the CLI you can hand the user a link **or** put the
-pattern straight into the app yourself when the app is running on the same Mac.
+pattern straight into the app yourself on the same Mac (the CLI starts the app if it is not running).
 
 ---
 
@@ -241,13 +241,22 @@ Drafts are identified as `d_xxxxxxx` on both, so the ids look interchangeable. T
 
 ## 8. Driving the app (CLI only)
 
-These commands need Drum AI running — in the Simulator or on the Mac — and they find it themselves.
-`drumai target` reports what was found, `drumai doctor` reports everything including whether the
+These commands need the macOS Drum AI app (`/Applications/Drum AI.app`) and they find it themselves.
+`drumai target` reports what was found; `drumai doctor` reports everything, including whether the
 app's container is readable.
+
+The command is handed to the app over its `drumai://` URL scheme via the system's `open`, so the app
+is started if it is not already running and the command runs inside that real app — never in some
+background process. Reading the app's state back (`current`, `live`, and any `apply` confirmation)
+needs **Full Disk Access** for the terminal; when it is missing, `doctor` prints how to grant it and
+those commands report `verified: null` instead of pretending to have confirmation.
+
+There is no simulator or headless mode: the macOS app is the only target, and it is the only thing
+that ever plays. If the user must not hear anything, do not send `play`.
 
 | Command | What it does |
 | --- | --- |
-| `drumai target` | Show or set which app instance to control (simulator / Mac) |
+| `drumai target` | Show which app instance will be controlled (the macOS app), and whether its container is readable |
 | `drumai play` / `stop` / `toggle` | Transport control |
 | `drumai preset <id>` | Switch the app to a PRESET |
 | `drumai kit-use <id>` | Switch the current kit |
@@ -277,5 +286,6 @@ buffer, so it is safe to try. Use `--dry-run` to see what would change without c
 | `The draft does not exist or has expired` right after creating it | The id came from the other channel — see §7 |
 | The web link points at `localhost:8787` | `PUBLIC_BASE_URL` is unset — see §6. Give the deeplink instead |
 | `draft validate` says invalid | Same causes as on the MCP channel: empty grid, step-count mismatch (`references/footguns.md`) |
-| App commands fail, or `doctor` shows no target | Drum AI is not running, or `sessionReadable` is false. Ask the user to launch the app |
+| App commands fail, or `doctor` shows no target | The macOS Drum AI app is not installed. Ask the user to install it (or run `open -a "Drum AI"`) |
+| `current` / `live` fails with "cannot read the App's container" | The terminal lacks Full Disk Access. `doctor`'s `app.hint` says where to grant it |
 | Output is in an unexpected language | `drumai lang` reports the current language and which layer chose it; `drumai --lang en <command>` overrides it for one call; `drumai lang en` makes it stick, `drumai lang auto` goes back to following the app |

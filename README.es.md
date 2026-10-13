@@ -19,7 +19,7 @@ Hay dos formas de conectarse, y el asistente usa la primera que esté disponible
 | **La herramienta de línea de comandos `drumai`** (la preferida — una sola instalación con Homebrew) | la CLI | sí |
 | **El servicio de presets de Drum AI** por MCP — nada que instalar | un cliente compatible con MCP | no |
 
-La CLI es la preferida porque se ejecuta por completo en tu propio equipo: no hay ningún servicio al que llegar ni ninguna dirección que configurar y, mientras la aplicación está abierta en el mismo Mac, puede introducir el patrón directamente en ella y reproducirlo. El servicio MCP no necesita ninguna instalación, así que es la mejor opción cuando prefieres no instalar nada. Ambos generan los mismos patrones.
+La CLI es la preferida porque se ejecuta por completo en tu propio equipo: no hay ningún servicio al que llegar ni ninguna dirección que configurar y, en el mismo Mac, puede introducir el patrón directamente en la aplicación y reproducirlo (la abre si no está en marcha). El servicio MCP no necesita ninguna instalación, así que es la mejor opción cuando prefieres no instalar nada. Ambos generan los mismos patrones.
 
 ---
 
@@ -54,11 +54,11 @@ En la práctica, esto significa lo siguiente:
 - Tú dices lo que quieres: «hazme un ritmo trap a 140 BPM con redobles de charles», «dame un groove de boom bap a 90 BPM», «escríbeme un patrón de metal con doble bombo».
 - El asistente elige un kit, escribe el patrón voz a voz y define el detalle: acentos de intensidad, ratchets, flams, groove y humanize.
 - Te entrega **un solo enlace**. Ábrelo, consulta la vista previa e importa el patrón en Drum AI.
-- Con la CLI instalada y la aplicación abierta en el mismo Mac, también puede saltarse el enlace: introducir el patrón directamente en la aplicación e iniciar la reproducción, para que lo oigas antes de que se entregue nada.
+- Con la CLI instalada, también puede saltarse el enlace: introducir el patrón directamente en la aplicación en el mismo Mac e iniciar la reproducción, para que lo oigas antes de que se entregue nada (la aplicación se abre si no está en marcha).
 
 También puedes hacerlo al revés: pega un patrón que ya tengas en la aplicación y el asistente lo leerá, te explicará qué está haciendo la batería y lo reelaborará.
 
-**Lo que no puede hacer:** el asistente no puede instalar la aplicación, abrirla ni importar el patrón por ti. La importación se hace con un toque en tu propio dispositivo, desde el enlace.
+**Lo que no puede hacer:** el asistente no puede instalar la aplicación ni importar el patrón por ti. La importación se hace con un toque en tu propio dispositivo, desde el enlace. Con la CLI puede controlar la aplicación en el mismo Mac (y abrirla si no está en marcha), pero no puede poner la aplicación en tu teléfono.
 
 ### Instalar esta skill
 

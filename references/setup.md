@@ -37,7 +37,7 @@ Without Homebrew, download the tarball for your architecture from
 [Releases](https://github.com/govo/drumai-cli/releases/latest) and move the binary onto your `PATH`:
 
 ```bash
-tar -xzf drumai-0.1.0-darwin-arm64.tar.gz     # or -x64 on Intel
+tar -xzf drumai-0.1.1-darwin-arm64.tar.gz     # or -x64 on Intel
 sudo mv drumai /usr/local/bin/
 ```
 

@@ -19,7 +19,7 @@ There are two ways to connect, and the assistant takes the first that is availab
 | **The `drumai` command-line tool** (preferred — one Homebrew install) | the CLI | yes |
 | **The Drum AI PRESET service** over MCP — nothing to install | an MCP-capable client | no |
 
-The CLI is preferred because it runs entirely on your own machine: there is no service to reach and no address to configure, and while the app is open on the same Mac it can push the pattern straight in and play it. The MCP service needs no installation at all, so it is the better choice when you would rather not install anything. Both produce the same patterns.
+The CLI is preferred because it runs entirely on your own machine: there is no service to reach and no address to configure, and on the same Mac it can push the pattern straight in and play it (opening the app for you if it is not already running). The MCP service needs no installation at all, so it is the better choice when you would rather not install anything. Both produce the same patterns.
 
 ---
 
@@ -54,11 +54,11 @@ What that means in practice:
 - You say what you want — "make me a 140 BPM trap beat with a rolling hi-hat", "give me a boom bap groove at 90 BPM", "write a double bass metal pattern".
 - The assistant picks a kit, writes the pattern voice by voice, and works out the detail: velocity accents, ratchets, flams, groove, humanize.
 - It hands you **one link**. Open the link, look at the preview, and import the pattern into Drum AI.
-- With the CLI installed and the app open on the same Mac, it can also skip the link: push the pattern straight into the app and start playback, so you hear it before anything is delivered.
+- With the CLI installed, it can also skip the link: push the pattern straight into the app on the same Mac and start playback, so you hear it before anything is delivered. The app is opened for you if it is not already running.
 
 You can also go the other way: paste a pattern you already have in the app, and the assistant will read it, explain what the drums are doing, and rework it.
 
-**What it cannot do:** the assistant cannot install the app or import the pattern for you — importing is one tap on your own device, from the link. With the CLI it can drive an app that is already running on the same Mac, but it cannot put the app on your phone.
+**What it cannot do:** the assistant cannot install the app or import the pattern for you — importing is one tap on your own device, from the link. With the CLI it can drive the app on the same Mac (opening it for you if it is not already running), but it cannot put the app on your phone.
 
 ### Install this skill
 

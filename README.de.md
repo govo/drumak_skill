@@ -19,7 +19,7 @@ Es gibt zwei Wege, sich zu verbinden, und der Assistent nimmt den ersten, der ve
 | **Das Kommandozeilen-Tool `drumai`** (bevorzugt – eine Homebrew-Installation) | die CLI | ja |
 | **Der PRESET-Dienst von Drum AI** über MCP – nichts zu installieren | ein MCP-fähiger Client | nein |
 
-Die CLI ist bevorzugt, weil sie vollständig auf deinem eigenen Rechner läuft: Es gibt keinen Dienst zu erreichen und keine Adresse zu konfigurieren, und während die App auf demselben Mac geöffnet ist, kann sie das Pattern direkt hineinschieben und abspielen. Der MCP-Dienst braucht überhaupt keine Installation, deshalb ist er die bessere Wahl, wenn du lieber nichts installieren möchtest. Beide erzeugen dieselben Patterns.
+Die CLI ist bevorzugt, weil sie vollständig auf deinem eigenen Rechner läuft: Es gibt keinen Dienst zu erreichen und keine Adresse zu konfigurieren, und auf demselben Mac kann sie das Pattern direkt in die App schieben und abspielen (sie öffnet die App, falls sie nicht läuft). Der MCP-Dienst braucht überhaupt keine Installation, deshalb ist er die bessere Wahl, wenn du lieber nichts installieren möchtest. Beide erzeugen dieselben Patterns.
 
 ---
 
@@ -54,11 +54,11 @@ Was das in der Praxis bedeutet:
 - Du sagst, was du willst – „mach mir einen 140-BPM-Trap-Beat mit rollendem Hi-Hat“, „gib mir einen Boom-Bap-Groove mit 90 BPM“, „schreib mir ein Double-Bass-Metal-Pattern“.
 - Der Assistent wählt ein Kit, schreibt das Pattern Stimme für Stimme und kümmert sich um die Details: Velocity-Akzente, Ratchets, Flams, Groove, Humanize.
 - Du bekommst **einen Link**. Öffne den Link, sieh dir die Vorschau an und importiere das Pattern in Drum AI.
-- Mit installierter CLI und geöffneter App auf demselben Mac kann er auch den Link überspringen: Er schiebt das Pattern direkt in die App und startet die Wiedergabe, sodass du es hörst, bevor irgendetwas ausgeliefert wird.
+- Mit installierter CLI kann er auch den Link überspringen: Er schiebt das Pattern auf demselben Mac direkt in die App und startet die Wiedergabe, sodass du es hörst, bevor irgendetwas ausgeliefert wird (die App wird geöffnet, falls sie nicht läuft).
 
 Du kannst auch den umgekehrten Weg gehen: Füge ein Pattern ein, das du bereits in der App hast, und der Assistent liest es aus, erklärt dir, was die Drums machen, und arbeitet es um.
 
-**Was er nicht kann:** Der Assistent kann die App nicht installieren, nicht öffnen und das Pattern nicht für dich importieren. Der Import ist ein Fingertipp auf deinem eigenen Gerät, aus dem Link heraus.
+**Was er nicht kann:** Der Assistent kann die App nicht installieren und das Pattern nicht für dich importieren. Der Import ist ein Fingertipp auf deinem eigenen Gerät, aus dem Link heraus. Mit der CLI kann er die App auf demselben Mac steuern (und öffnet sie, falls sie nicht läuft), aber er kann die App nicht auf dein Telefon bringen.
 
 ### Diesen Skill installieren
 

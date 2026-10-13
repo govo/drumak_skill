@@ -19,7 +19,7 @@ Il y a deux façons de se connecter, et l'assistant prend la première disponibl
 | **L'outil en ligne de commande `drumai`** (préféré — une seule installation Homebrew) | la CLI | oui |
 | **Le service PRESET de Drum AI** via MCP — rien à installer | un client compatible MCP | non |
 
-La CLI est préférée parce qu'elle tourne entièrement sur votre propre machine : il n'y a aucun service à joindre ni adresse à configurer, et tant que l'app est ouverte sur le même Mac, elle peut pousser le pattern directement dedans et le jouer. Le service MCP ne demande aucune installation, ce qui en fait le meilleur choix si vous préférez ne rien installer. Les deux produisent les mêmes patterns.
+La CLI est préférée parce qu'elle tourne entièrement sur votre propre machine : il n'y a aucun service à joindre ni adresse à configurer, et sur le même Mac elle peut pousser le pattern directement dans l'app et le jouer (elle ouvre l'app si elle n'est pas lancée). Le service MCP ne demande aucune installation, ce qui en fait le meilleur choix si vous préférez ne rien installer. Les deux produisent les mêmes patterns.
 
 ---
 
@@ -54,11 +54,11 @@ Concrètement :
 - Vous dites ce que vous voulez — « fais-moi un beat trap à 140 BPM avec un charleston en roulement », « donne-moi un groove boom bap à 90 BPM », « écris un pattern metal avec double grosse caisse ».
 - L'assistant choisit un kit, écrit le pattern voix par voix et règle les détails : accents de vélocité, ratchets, flams, groove, humanisation.
 - Il vous remet **un lien**. Ouvrez-le, regardez l'aperçu et importez le pattern dans Drum AI.
-- Avec la CLI installée et l'app ouverte sur le même Mac, il peut aussi se passer du lien : pousser le pattern directement dans l'app et lancer la lecture, pour que vous l'entendiez avant toute livraison.
+- Avec la CLI installée, il peut aussi se passer du lien : pousser le pattern directement dans l'app sur le même Mac et lancer la lecture, pour que vous l'entendiez avant toute livraison (l'app est ouverte si elle n'est pas lancée).
 
 L'inverse fonctionne aussi : collez un pattern que vous avez déjà dans l'app, et l'assistant le lira, vous expliquera ce que joue la batterie et le retravaillera.
 
-**Ce qu'elle ne peut pas faire :** l'assistant ne peut pas installer l'app, l'ouvrir ni importer le pattern à votre place. L'import se fait d'un seul geste, sur votre appareil, depuis le lien.
+**Ce qu'elle ne peut pas faire :** l'assistant ne peut pas installer l'app ni importer le pattern à votre place. L'import se fait d'un seul geste, sur votre appareil, depuis le lien. Avec la CLI, il peut piloter l'app sur le même Mac (et l'ouvrir si elle n'est pas lancée), mais il ne peut pas installer l'app sur votre téléphone.
 
 ### Installer cette skill
 
