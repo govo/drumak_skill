@@ -54,7 +54,7 @@ with the MCP tools so the user still gets their beat.
 | --- | --- | --- |
 | Needs the service reachable | yes | **no** — fully local |
 | Needs the address configured | yes | no |
-| Pattern building, fills, styles, rendering | yes | yes, same 19 operations |
+| Pattern building, fills, styles, rendering | yes | yes, same 20 operations |
 | Draft storage | server process memory, 2-hour TTL | **local file**, no expiry |
 | Sees the app's own PRESETs and kits on disk | no | yes (`current`, `preset`, `live`) |
 | Starts and stops playback in the app | no | yes (`play` / `stop` / `toggle`) |
@@ -133,6 +133,8 @@ gives you the CLI spelling.
 | `render_preset` | `drumai render <draftId> \| --draft <id> \| --spec @file.json [--include url,preview]` |
 | `parse_preset` | `drumai parse --input "DHP2;..." \| --input @share.txt \| --input -` |
 | `render_wireframe` | `drumai wireframe --input "DHP2;..." \| --input @share.txt \| --input -` |
+| `render_kit` | `drumai call render_kit '{"name":"...","slots":[...]}'` — plus the app-driving `userkit` family (§9) |
+| — (CLI only, no MCP equivalent) | `drumai share <draftId> \| --draft <id> \| --spec @file.json [--text] [--out <file>]` |
 
 Everything in `SKILL.md` §4 about **how** to write a pattern applies unchanged — the grid strings,
 `hits`, velocities, ratchets, flams, `cellsPerQuarter`, and every footgun are properties of the
@@ -183,19 +185,31 @@ drumai draft voice "$D" --voices '[
 # 4. self-check
 drumai draft validate "$D"
 
-# 5. get the links
-drumai render "$D"
+# 5. deliver — create it in the app as a new user PRESET (the default)
+drumai apply --draft "$D" --save --as "Trap 140" --tags trap,hiphop
+drumai play                        # let the user hear it
+
+# only when the user asks for a shareable link:
+# drumai render "$D"
 ```
 
-Steps 2 through 5 are the same musical work the MCP flow does; the only difference is that the draft
-lives in `~/.drumai/drafts.json` on the user's machine instead of in the service's memory.
+Steps 2 through 4 are the same musical work the MCP flow does; the only difference is that the draft
+lives in `~/.drumai/drafts.json` on the user's machine instead of in the service's memory. Step 5 is
+where the CLI wins: the pattern lands in the app itself, with no link to copy.
 
 ---
 
-## 6. Delivering the link — read this before you render
+## 6. Delivering — the app by default, a link only on request
 
-`render` returns the same two links as `render_preset`, but **the host of `url` comes from the CLI's
-own environment, not from the service**:
+On the CLI the delivery is normally the app itself: `drumai apply … --save --as` created the PRESET
+(§8) and there is nothing to hand over. **Do not run `render` unless the user explicitly asked for a
+link.**
+
+When the user does want to send the beat elsewhere, the thing to produce is the **share text**, not a
+link — `drumai share "$D" --text` emits the same `DHP2;...` string the app's own share button does, and
+it pastes straight into the app's import box on any device. Reach for `render` only when they asked for
+a link by name. When they do, `render` returns the same two links as `render_preset`, but **the host of
+`url` comes from the CLI's own environment, not from the service**:
 
 | Environment variable | `url` becomes |
 | --- | --- |
@@ -262,23 +276,71 @@ that ever plays. If the user must not hear anything, do not send `play`.
 | `drumai kit-use <id>` | Switch the current kit |
 | `drumai reload` | Make the app rescan its user PRESET and kit folders |
 | `drumai current` | Read the app's current content as a spec, including unsaved edits (`--wireframe` for a score) |
-| `drumai apply` | Write a draft / spec / payload into the app's current PRESET **in place**; creates nothing, only `--save` writes to disk |
-| `drumai live open\|push\|show\|save` | Edit one PRESET across several calls: `open` reads it into a draft, `push` sends it back, `save` writes it to disk |
+| `drumai apply` | Write a draft / spec / payload into the app. **With `--save --as "<name>"` it creates a new user PRESET**; without `--as` it is an in-place write and the CLI refuses it unless you add `--overwrite-current` — read "Create or edit" below before you send it |
+| `drumai share` | Produce the App-compatible `DHP2;...` share text for a draft or spec (`--text` for the bare string, `--out <file>` to write it) |
+| `drumai live open\|push\|show\|save` | Edit one existing user PRESET across several calls: `open` reads it into a draft, `push` sends it back, `save` writes it to disk |
 
-Two uses worth remembering:
+### Create or edit — pick deliberately
 
-- **Hear it before delivering.** After writing a pattern, `drumai apply --draft "$D"` puts it into
-  the app, then `drumai play` lets the user listen — no link, no import tap. Say that you did it.
-- **Edit what the user already has.** `drumai current --wireframe` shows the pattern loaded in the
-  app, and `drumai live open` picks it up as an editable draft. That is the shortest path for "change
-  the beat I have open right now".
+- **Creating (the default for "make me a beat").**
+  `drumai apply --draft "$D" --save --as "My Beat" --tags pop,rock` makes a **new user PRESET** and
+  leaves the currently selected one untouched.
+- **Editing a user PRESET you already made.** `drumai live open [--preset <id>]` → edit the draft →
+  `drumai live save`. This is the only in-place path to take on purpose.
+- **Never edit a built-in PRESET.** A bare `drumai apply` sent while a built-in is selected writes
+  into the app's **edit buffer**: the on-screen pattern changes, but the built-in itself is not
+  saved, the user's own unsaved edits on that screen are gone, and because the app persists its
+  session, its next launch comes back to your pattern instead of theirs. If you did not mean to edit
+  the open preset, use `--save --as`.
+- **The CLI enforces the rule.** Any `drumai apply` without `--as` — including `--save` on its own —
+  exits with a usage error unless `--overwrite-current` is also given. `--tags` without `--as` is
+  refused too (the in-place save path drops tags silently). Seeing that error means you probably
+  wanted `--as`, not `--overwrite-current`. `--dry-run` is exempt: it dispatches nothing.
 
-`apply` writes in place and **creates nothing**; without `--save` it touches only the app's edit
-buffer, so it is safe to try. Use `--dry-run` to see what would change without changing it.
+**Hear it before delivering.** After creating the PRESET, `drumai play` lets the user listen — no
+link, no import tap. Say that you did it. `--dry-run` shows what `apply` would send without sending
+it.
 
 ---
 
-## 9. Troubleshooting
+## 9. Custom kits — assembling voices into a new kit
+
+A **kit** is the set of voices; a PRESET is a rhythm played on them. Building one is a separate job from
+everything in §4 — no grids, no fills, no drafts. It is reachable from both channels, and both speak the
+same "kit build spec": `{ "name": ..., "slots": [ { "from": { "kit": "kit-13", "index": 0 } }, ... ] }`.
+
+On the **CLI** it is the `userkit` family (no MCP companion — the MCP route is `render_kit`):
+
+```bash
+drumai userkit list                          # this machine's custom kits (needs Full Disk Access)
+drumai userkit show <id> [--spec]            # slot listing; --spec dumps an editable spec of all keeps
+drumai userkit create --from-spec - [--select] [--dry-run]
+drumai userkit edit <id> --from-spec - [--select] [--dry-run]
+drumai userkit rename <id> "<new name>"
+```
+
+On the **MCP** channel it is the tool `render_kit` (reachable on the CLI only through the escape hatch:
+`drumai call render_kit '{"name":"...","slots":[...]}'`). Through MCP there is no app to write into, so it
+returns the usual pair of links instead — `url` is the kit landing page (`/k?p=<spec JSON>`), `deeplink` is
+`drumai://kit-import?p=<spec JSON>`. Note the payload there is plain **JSON**, not the DHP3 of a PRESET
+link, and it is URL-encoded for that reason.
+
+Points that bite:
+
+- `slots` is 8..16 entries and their **order is the final slot order**; each `from{kit,index}` deep-copies
+  one voice out of an existing kit, and the app re-mints the instrument ids when it lands.
+- `alias` (at most 8 characters, no duplicates) names that slot in the app; omit it to keep the source name.
+- `keep{n}` keeps slot *n* of the target kit as it is — **edit / rename only** (a new kit has no base).
+  Omitting `slots` entirely keeps every voice, which is what `userkit rename` sends.
+- The CLI writes nothing itself: it puts the spec in a `drumai://kit-import` link and the **app** assembles
+  and saves it. A new kit therefore lands in the app's own storage, on the machine the CLI runs on.
+- **The kit deep link creates the kit the moment it opens** — no confirm dialog, only a short toast after.
+  That is also why the kit landing page does **not** launch the app by itself (the PRESET page does): an
+  auto-open would create a duplicate kit on every page load. Say this when you hand a kit link over.
+- `userkit list` / `show` / `edit` / `rename` read the app's container, so they need **Full Disk Access**
+  (§8); `create` does not.
+
+## 10. Troubleshooting
 
 | Symptom | Cause |
 | --- | --- |

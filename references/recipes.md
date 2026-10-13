@@ -15,8 +15,13 @@ can move between channels without looking anything up.
 All four recipes follow the same skeleton:
 
 ```
-pick a kit → write the pattern (all voices in one pass) → add a fill → self-check → render_preset for the links
+pick a kit → write the pattern (all voices in one pass) → add a fill → self-check → deliver
 ```
+
+**Deliver** means different things per channel, and every recipe below shows both endings: on the
+**CLI** it is `drumai apply --save --as` — the PRESET is created *inside the app*, with nothing to
+copy; on **MCP** it is `render_preset`, which hands back links. Only produce a link on the CLI when
+the user asks for one (`SKILL.md` §6).
 
 **Remember that `hits` repeats in every bar.** The multi-bar recipes below always use `triggers` to write per-bar grids.
 
@@ -55,7 +60,11 @@ drumai draft voice "$D" --voices '[
    "velocities":{"0":0.7,"2":1,"4":0.7,"6":1,"8":0.7,"10":1,"12":0.7,"14":1}}]'
 
 drumai draft validate "$D"
-drumai render "$D"
+
+# deliver — create it in the app (the CLI's default; nothing to copy)
+drumai apply --draft "$D" --save --as "Skill House 124" --tags house
+drumai play
+# want a shareable link instead? ask first, then:  drumai render "$D"
 ```
 
 Note that `--cells` is the CLI spelling of `cellsPerQuarter`, and that the `voices` array is passed
@@ -110,7 +119,11 @@ drumai draft voice "$D" --voices '[
 
 drumai draft fill "$D" --mode lastBar --voices '[{"index":2}]' --seed 7
 
-drumai draft validate "$D" && drumai render "$D"
+drumai draft validate "$D"
+
+# deliver — create it in the app
+drumai apply --draft "$D" --save --as "Skill BoomBap 92" --tags hiphop
+drumai play
 ```
 
 `--groove` takes the same `kind:amount` pair as the JSON `groove` array. Everything else is passed
@@ -162,7 +175,11 @@ drumai draft voice "$D" --voices '[
    "ratchets":"------------r-r-----------------",
    "velocities":{"0":1,"2":0.6,"4":0.75,"8":1,"12":0.7}}]'
 
-drumai draft validate "$D" && drumai render "$D"
+drumai draft validate "$D"
+
+# deliver — create it in the app
+drumai apply --draft "$D" --save --as "Skill Trap 140" --tags trap
+drumai play
 ```
 
 **Every grid string's length must equal `bars × stepsPerBar`** (here 2 × 16 = 32).
@@ -203,6 +220,7 @@ the `ratchets` string back in `voices[]` alongside the score, so you can see the
 decoding anything:
 
 ```bash
+# self-check, not delivery — render here only to get the payload back
 P=$(drumai render "$D" | jq -r .url | sed 's/.*p=//')
 drumai wireframe --input "$P"     # score + voices[].ratchets
 drumai parse     --input "$P"     # the spec itself, if you intend to edit
@@ -251,7 +269,11 @@ drumai draft voice "$D" --voices '[             # step 4: grids[0] written out 4
   {"index":0,"triggers":"<grids[0] x4, 64 chars>"},
   {"index":1,"triggers":"<grids[0] x4, 64 chars>"}]'
 
-drumai draft validate "$D" && drumai render "$D"
+drumai draft validate "$D"
+
+# deliver — create it in the app
+drumai apply --draft "$D" --save --as "Slime Time" --tags trap
+drumai play
 ```
 
 Key points:
@@ -279,12 +301,18 @@ Key points:
 3) render_preset {"spec": <the edited spec>}
 ```
 
-Same recipe on the CLI (`parse` returns a wrapper, so take `.spec` out of it):
+Same recipe on the CLI (`parse` returns a wrapper, so take `.spec` out of it). **This is a create,
+not an edit** — the pasted blob is not one of the user's own PRESETs, so the result becomes a new
+user PRESET (`SKILL.md` §3), not a change to anything on disk:
 
 ```bash
 drumai parse --input "DHP2;k=kit-10;b=124;n=...;d=..." | jq '.spec' > spec.json
 # edit spec.json
-drumai render --spec @spec.json
+
+# deliver — create it in the app as a new user PRESET
+drumai apply --spec @spec.json --save --as "My Beat" --tags funk,hiphop
+drumai play
+# MCP channel, or a link the user explicitly asked for:  drumai render --spec @spec.json
 ```
 
 Key points:

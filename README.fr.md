@@ -8,9 +8,9 @@
 
 [English (US)](README.md) · [Deutsch](README.de.md) · **Français** · [繁體中文](README.zh-Hant.md) · [한국어](README.ko.md) · [简体中文](README.zh-Hans.md) · [日本語](README.ja.md) · [Español](README.es.md)
 
-Décrivez un rythme en langage courant, recevez un lien, ouvrez ce lien, et le pattern se retrouve dans votre boîte à rythmes Drum AI — prêt à être joué, modifié et travaillé.
+Décrivez un rythme en langage courant et le pattern se retrouve dans votre boîte à rythmes Drum AI : avec l'outil en ligne de commande drumai il entre directement dans l'app, prêt à être joué, modifié et travaillé ; sans lui, l'assistant vous remet un lien à ouvrir et à importer.
 
-Ce dépôt contient la skill qui rend tout cela possible. Elle relie un assistant IA au service PRESET de Drum AI, pour que l'assistant puisse choisir un kit, écrire le pattern, ajouter les détails et vous remettre un lien à importer.
+Ce dépôt contient la skill qui rend tout cela possible. Elle relie un assistant IA au service PRESET de Drum AI, pour que l'assistant puisse choisir un kit, écrire le pattern, ajouter les détails et vous livrer le résultat : directement dans l'app si la CLI drumai est installée, ou sous forme de lien à importer sinon.
 
 Il y a deux façons de se connecter, et l'assistant prend la première disponible :
 
@@ -53,12 +53,12 @@ Concrètement :
 
 - Vous dites ce que vous voulez — « fais-moi un beat trap à 140 BPM avec un charleston en roulement », « donne-moi un groove boom bap à 90 BPM », « écris un pattern metal avec double grosse caisse ».
 - L'assistant choisit un kit, écrit le pattern voix par voix et règle les détails : accents de vélocité, ratchets, flams, groove, humanisation.
-- Il vous remet **un lien**. Ouvrez-le, regardez l'aperçu et importez le pattern dans Drum AI.
-- Avec la CLI installée, il peut aussi se passer du lien : pousser le pattern directement dans l'app sur le même Mac et lancer la lecture, pour que vous l'entendiez avant toute livraison (l'app est ouverte si elle n'est pas lancée).
+- Il place le pattern **dans Drum AI**. Avec la CLI drumai installée, le pattern entre dans l'app de ce Mac et se met à jouer ; sinon, il vous remet **un lien** à ouvrir, prévisualiser et importer.
+- Avec la CLI installée, c'est la voie par défaut : une seule ligne Homebrew, aucun service à joindre, aucun réseau nécessaire, et l'app s'ouvre pour vous si elle n'est pas lancée — vous entendez donc le rythme avant toute livraison.
 
 L'inverse fonctionne aussi : collez un pattern que vous avez déjà dans l'app, et l'assistant le lira, vous expliquera ce que joue la batterie et le retravaillera.
 
-**Ce qu'elle ne peut pas faire :** l'assistant ne peut pas installer l'app ni importer le pattern à votre place. L'import se fait d'un seul geste, sur votre appareil, depuis le lien. Avec la CLI, il peut piloter l'app sur le même Mac (et l'ouvrir si elle n'est pas lancée), mais il ne peut pas installer l'app sur votre téléphone.
+**Ce qu'elle ne peut pas faire :** l'assistant ne peut pas installer l'app, et il ne peut piloter l'app que sur le même Mac : il n'atteint pas votre téléphone. Quand le rythme doit aller vers un iPhone, un iPad ou quelqu'un d'autre, il vous remettra donc un lien : ouvrez-le sur l'appareil et touchez importer. Sur le même Mac avec la CLI, il n'y a rien à toucher : le pattern est déjà dans l'app.
 
 ### Installer cette skill
 
@@ -119,7 +119,7 @@ Il ne reste plus qu'à décrire le rythme voulu. Lancez `/mcp` pour vérifier qu
 | Ce dépôt | Skill Preset de Drum AI pour assistants IA |
 | Service de la skill | <https://c1c1.online/drumai_mcp> |
 | Outil en ligne de commande | `brew tap govo/tap && brew trust govo/tap && brew install drumai` |
-| Sortie | Un lien d'import contenant le pattern |
+| Sortie | Le pattern poussé directement dans l'app (avec la CLI), ou un lien d'import qui le contient |
 
 ---
 
@@ -163,7 +163,7 @@ brew trust govo/tap
 brew install drumai
 ```
 
-Il ne nécessite pas Node.js, fonctionne hors ligne et couvre les dix-neuf opérations de construction de patterns, plus des commandes qui dialoguent directement avec l'app — lancer et arrêter la lecture, changer de PRESET ou de kit, lire le pattern actuellement chargé et écrire un pattern dans l'app sans passer par un lien. C'est le même moteur que celui utilisé par le service et par l'app, donc les patterns sont identiques. Référence complète : [references/cli.md](references/cli.md).
+Il ne nécessite pas Node.js, fonctionne hors ligne et couvre les vingt opérations, plus des commandes qui dialoguent directement avec l'app — lancer et arrêter la lecture, changer de PRESET ou de kit, lire le pattern actuellement chargé et écrire un pattern dans l'app sans passer par un lien (la livraison par défaut quand la CLI est installée). C'est le même moteur que celui utilisé par le service et par l'app, donc les patterns sont identiques. Référence complète : [references/cli.md](references/cli.md).
 
 ### L'assistant peut-il installer la CLI à ma place ?
 
@@ -187,11 +187,11 @@ Pas toute seule. La transcription, c'est le rôle de l'app : importez le morceau
 
 ### L'assistant peut-il importer le pattern dans l'app à ma place ?
 
-Non. La sortie de l'assistant est un lien. Vous ouvrez ce lien sur votre appareil, consultez l'aperçu et importez depuis cette page. Rien n'arrive dans l'app tant que vous n'avez pas touché « importer ».
+D'un appareil à l'autre, non : cela demande un lien. Sur le même Mac, la CLI drumai peut placer le pattern directement dans Drum AI, mais elle n'atteint pas votre iPhone ni votre iPad ; là, la sortie de l'assistant est un lien que vous ouvrez, prévisualisez et importez d'un seul geste. Rien n'arrive sur le téléphone tant que vous n'avez pas touché importer.
 
-### Que contient le lien d'import ?
+### Que contient le lien d'import, et quand en reçois-je un ?
 
-Un seul lien transporte tout le pattern : le kit, le tempo, la signature rythmique et chaque frappe, avec sa vélocité, ses ratchets et ses flams. L'ouvrir affiche une page d'aperçu ; importer depuis celle-ci place le pattern dans Drum AI. Aucun fichier à télécharger, aucun compte nécessaire.
+Un seul lien transporte tout le pattern : le kit, le tempo, la signature rythmique et chaque frappe, avec sa vélocité, ses ratchets et ses flams. Vous en recevez un quand le pattern doit **quitter ce Mac** : sur le canal MCP, si la CLI n'est pas installée, ou si vous demandez une copie à partager. L'ouvrir affiche une page d'aperçu ; importer depuis celle-ci place le pattern dans Drum AI. Aucun fichier à télécharger, aucun compte nécessaire.
 
 ### Le pattern généré est-il modifiable dans l'app ?
 
@@ -203,7 +203,7 @@ Drum AI Pro est un abonnement facultatif qui supprime les limites de la version 
 
 ### Qu'est-ce qu'un PRESET dans Drum AI ?
 
-Un PRESET est un pattern de batterie enregistré : le kit, les réglages de transport et la grille de frappes. Les PRESET sont ce que vous partagez et importez. Le lien d'aperçu produit par cette skill est un PRESET en transit — il transporte le pattern de l'assistant vers l'app.
+Un PRESET est un pattern de batterie enregistré : le kit, les réglages de transport et la grille de frappes. Les PRESET sont ce que vous partagez et importez. Cette skill en livre un aussi : directement dans l'app quand la CLI est là, sinon sous forme de lien d'aperçu, un PRESET en transit qui transporte le pattern de l'assistant vers l'app.
 
 ---
 

@@ -55,7 +55,7 @@ Smoke check — if this answers, the service is up:
 
 ```bash
 curl -s https://c1c1.online/drumai_mcp/healthz
-# {"ok":true,"version":"0.1.0","kits":25,"presets":54,"styleTemplates":8,"tools":19}
+# {"ok":true,"version":"0.1.0","kits":25,"presets":54,"styleTemplates":8,"tools":20}
 ```
 
 ---
@@ -168,7 +168,7 @@ What you commit is `.env.example`.
 | Scenario | Which channel | How to use it |
 | --- | --- | --- |
 | `command -v drumai` prints a path | **`drumai` CLI** | `drumai draft create ...` — local, no service, and it can drive the app (see `cli.md`) |
-| MCP already configured in the client | **MCP tools** | Call them directly — full capability, 19 tools. Tool names are `create_draft` and the like |
+| MCP already configured in the client | **MCP tools** | Call them directly — full capability, 20 tools. Tool names are `create_draft` and the like |
 | Client does not support MCP but can run a shell | **Script channel** | `bash scripts/call.sh <tool name> '<JSON>'` — same capability as MCP |
 | Neither | **Raw JSON-RPC** | POST to `<address>/mcp` yourself; protocol details in `channels.md` |
 

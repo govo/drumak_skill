@@ -1,6 +1,6 @@
 # Four channels: how to reach Drum AI's sequencing engine
 
-Channels 1 through 4 offer the **same 19 generation operations**, backed by the same engine, so the
+Channels 1 through 4 offer the **same 20 operations**, backed by the same engine, so the
 music you can make does not depend on which one you pick. The difference is what else each can do and
 what it needs in order to work. Follow the order in the first section of `SKILL.md` and take the first
 one that works.
@@ -27,7 +27,7 @@ Smoke check:
 
 ```bash
 curl -s https://c1c1.online/drumai_mcp/healthz
-# {"ok":true,"version":"0.1.0","kits":25,"presets":54,"styleTemplates":8,"tools":19}
+# {"ok":true,"version":"0.1.0","kits":25,"presets":54,"styleTemplates":8,"tools":20}
 ```
 
 ---

@@ -1,4 +1,4 @@
-# Tool Reference: Parameters, Return Values, and Error Semantics of the 19 Tools
+# Tool Reference: Parameters, Return Values, and Error Semantics of the 20 Tools
 
 The authoritative source is the schema returned by the server's `tools/list` (`bash scripts/call.sh --list` to see the names).
 This document adds what the schema does not show: default values, actual behavior, and **the parts that bite**.
@@ -453,7 +453,55 @@ Kick    x---:--x-:--x-:----|x---:--x-:--x-:----
 
 ---
 
-## 5. Error semantics (common to all tools)
+## 5. Kit tools (1)
+
+### 20. `render_kit`
+
+```
+{
+  name*: string,                    // name of the new kit
+  slots*: [                         // 8..16 entries, in final slot order
+    { from*: { kit*: string, index*: number }, alias?: string }
+  ],
+  include?: ("url"|"preview"|"diagnostics")[]    // defaults to all
+}
+```
+
+Builds a **custom kit**: a set of voices taken out of the built-in kits. This is not a rhythm — it shares no
+steps with the PRESET workflow (see `recipes.md`). The `slots` shape is the same as the `spec` that
+`drumai userkit` takes as `--from-spec`, so the two channels speak one format.
+
+- `from.kit` must be a **built-in** kit id (`list_kits`); `from.index` is a voice index in that kit (`get_kit`).
+  Pull from at least two kits — a kit assembled from one source is just that source.
+- The voice is a deep copy; the app re-mints the instrument ids when it lands, so index collisions do not matter.
+- `alias` renames that slot in the app (at most 8 characters, no duplicates). Omit it to keep the source voice's name.
+
+Returns:
+
+- `url`: of the form `<PUBLIC_BASE_URL>/k?p=<spec JSON>` — the kit landing page.
+- `deeplink`: of the form `drumai://kit-import?p=<spec JSON>`, the spec URL-encoded (it is plain JSON, not
+  DHP3). Opening it **creates the kit immediately** — the app asks nothing and only shows a short toast
+  afterwards. **Say so when you hand the links over.** Also note the kit page deliberately does **not**
+  launch the app on its own (unlike the PRESET page), precisely because of that: an auto-open would create a
+  duplicate kit on every refresh. The user has to tap "Open in App".
+- `urlLength`, `copyNote`, `spec`: same meaning as `render_preset`.
+- `preview`: `{ name, instrumentCount, slots: [{ position, kitId, kitName, index, name, role, alias? }] }` —
+  a readable listing of what each slot resolves to in the app, for showing the user before they import.
+- `diagnostics`: `{ warnings, derived: { instrumentCount } }`.
+
+Behavior notes:
+
+- `render_preset`'s payload is DHP3; this one is plain JSON. The spec is quoted into the links here, so the
+  same rule applies: **hand both links over whole, never re-assemble them.**
+- The tool does **not** write an `id` — the server has no idea whose kit this is, so the app mints one.
+- Validation runs against the built-in kits only: the server cannot see the user's machine, so a `from.kit`
+  that is not a built-in id is **rejected on the spot** (`issues`), not deferred. The landing page runs the
+  same validation, so a bad spec fails identically in both places.
+- Failures come back as `{ ok:false, issues }` just like `render_preset`.
+
+---
+
+## 6. Error semantics (common to all tools)
 
 A tool failure is **not a transport fault**; it is a normal return with `isError: true`, with a payload of the form:
 
