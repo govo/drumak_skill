@@ -12,6 +12,15 @@
 
 本仓库就是让这套流程跑起来的技能。它把 AI 助手接入 Drum AI 的预设服务,于是助手能够挑选鼓组、编写节奏、补上细节,最后交给你一个可导入的链接。
 
+接入方式有两种,助手会采用其中第一个可用的:
+
+| | 需要 | 可离线使用 |
+| --- | --- | --- |
+| **`drumai` 命令行工具**(首选——一行 Homebrew 即可安装) | CLI | 可以 |
+| **通过 MCP 接入的 Drum AI 预设服务**——无需安装 | 支持 MCP 的客户端 | 不可以 |
+
+之所以首选 CLI,是因为它完全跑在你自己的机器上:不需要访问任何服务,也不需要配置任何地址;而且当应用打开在同一台 Mac 上时,它还能把节奏型直接推进应用并开始播放。而 MCP 服务完全无需安装,所以当你不想安装任何东西时,它是更好的选择。两者产出的节奏型是一样的。
+
 ---
 
 ## Drum AI 是什么?
@@ -38,13 +47,14 @@
 
 ## 这个技能能做什么
 
-本仓库里没有应用本身。它是一个**面向 AI 助手的技能**(适用于 Claude Code,以及任何支持 MCP 的客户端)。安装后,助手就能直连 Drum AI 的预设服务,而这套服务与应用使用的是同一个编曲引擎。
+本仓库里没有应用本身。它是一个**面向 AI 助手的技能**(适用于 Claude Code,以及任何支持 MCP 的客户端)。安装后,助手就能直连 Drum AI 的编曲引擎——也就是应用所用的同一套引擎——既可以通过 `drumai` 命令行工具,也可以通过 预设服务。
 
 具体来说:
 
 - 你只需要说出想要什么——「给我来一段 140 BPM 的 Trap,踩镲要滚奏」「来一段 90 BPM 的 Boom Bap 律动」「写一段双踩金属节奏」。
 - 助手会挑一套鼓组,逐个音色把节奏写出来,并处理好细节:力度重音、连击、装饰音、律动、人性化。
 - 最后交给你**一个链接**。打开链接,看一眼预览,就能把节奏型导入 Drum AI。
+- 装上 CLI 且应用打开在同一台 Mac 上时,它还能跳过链接:把节奏型直接推进应用并开始播放,让你在交付任何东西之前就先听到它。
 
 反过来也行:把应用里已有的节奏型粘贴过来,助手会读懂它、讲清楚鼓都在打什么,并帮你重新改编。
 
@@ -52,7 +62,19 @@
 
 ### 安装这个技能
 
-在 Claude Code 里,两条命令即可:
+**推荐先安装:`drumai` 命令行工具。** 它只需一行 Homebrew 即可安装,不需要任何服务、不需要网络,也是助手首选的方式。
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+三行都不能少:Homebrew 6 及更高版本在被信任之前,不会加载来自第三方 tap 的 formula,所以跳过中间那一行会失败,报错为 `Refusing to load formula govo/tap/drumai from untrusted tap`。在低于 6 的 Homebrew 上没有 `trust` 子命令——去掉那一行即可。不想用 Homebrew?已签名并公证的二进制文件在 [Releases](https://github.com/govo/drumai-cli/releases/latest) 上,每种架构各一个,而且 CLI 不需要 Node.js。用 `drumai version` 可以验证。
+
+如果你不想安装任何东西,也完全可以:这个技能同样能通过公开的 预设服务使用,无需任何本地配置。助手找到 CLI 时就用它,找不到就改用服务。你永远不必做选择——而且随时可以让助手带你走一遍安装。
+
+**接下来安装技能。** 在 Claude Code 里,两条命令即可:
 
 ```
 /plugin marketplace add govo/drumak_skill
@@ -76,7 +98,7 @@
 }
 ```
 
-**完全没有 MCP 客户端?** 还有一个 shell 脚本可以访问同一套服务,以及一条纯 JSON-RPC 的方式。环境要求、配置方法、脚本接口和故障排查都写在 [references/setup.md](references/setup.md)。
+**完全没有 MCP 客户端?** `drumai` CLI 可以单独使用,还有一个 shell 脚本能访问同一套服务,以及一条纯 JSON-RPC 的方式。环境要求、配置方法、安装步骤和故障排查都写在 [references/setup.md](references/setup.md);完整的 CLI 参考见 [references/cli.md](references/cli.md)。
 
 ---
 
@@ -94,8 +116,9 @@
 | 分离音轨 | 底鼓、军鼓、踩镲、镲片 |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | 官方网站 | <https://c1c1.online/drumanalyse/> |
-| 本仓库 | 面向 AI 助手的 Drum AI 预设 MCP 技能 |
+| 本仓库 | 面向 AI 助手的 Drum AI 预设技能 |
 | 技能服务 | <https://c1c1.online/drumai_mcp> |
+| 命令行工具 | `brew tap govo/tap && brew trust govo/tap && brew install drumai` |
 | 输出 | 一个包含节奏型的导入链接 |
 
 ---
@@ -128,11 +151,27 @@ Drum AI 预设技能就是本仓库。它是给 AI 助手用的扩展,把助手�
 
 ### 用这个技能需要自己搭一台服务器吗?
 
-不需要。技能默认指向 Drum AI 预设服务的公开部署,安装完就能直接用。只有当你需要针对这套服务做开发时,自己部署一份才有意义。
+不需要。装上 `drumai` 命令行工具之后,根本用不到服务器——节奏型完全在你自己的机器上构建,不联网。另一条通道默认指向 Drum AI 预设服务的公开部署,安装完就能直接用。只有当你需要针对这套服务做开发时,自己部署一份才有意义。
+
+### 有命令行工具吗?
+
+有,而且它是使用这个技能的推荐方式。`drumai` 是一个经过签名和公证的单一二进制文件,通过 Homebrew 安装:
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+它不需要 Node.js,可以离线使用,涵盖全部十九种节奏型构建操作,外加直接与应用通信的命令——开始和停止播放、切换预设或鼓组、读取当前加载的任意节奏型,以及不经链接就把节奏型写进应用。它和服务、应用用的是同一套引擎,所以产出的节奏型完全一致。完整参考:[references/cli.md](references/cli.md)。
+
+### 助手能替我安装 CLI 吗?
+
+只要你开口并同意,它就可以运行那三行 Homebrew 命令。在你的机器上安装软件由你决定,所以助手应当先向你确认。如果你不想安装任何东西,也不会有问题:助手会改用 预设服务,那不需要任何本地配置。
 
 ### 哪些 AI 助手能用这个技能?
 
-任何支持 MCP 的客户端都可以,包括 Claude Code、Claude Desktop 和 Cursor。Claude Code 是最省事的路径,因为这个仓库可以作为插件安装,并自动注册服务。不支持 MCP 但能运行 shell 的客户端,可以改用附带的脚本。对于只能读取文本的助手(比如 ChatGPT),只要给出服务地址,写节奏的部分完全一样。
+任何支持 MCP 的客户端都可以,包括 Claude Code、Claude Desktop 和 Cursor。Claude Code 是最省事的路径,因为这个仓库可以作为插件安装,并自动注册服务。任何能运行 shell 的助手都可以改用 `drumai` CLI,它不需要 MCP 支持,也不需要服务。再退一步,附带的脚本能访问同一套服务。对于只能读取文本的助手(比如 ChatGPT),只要给出服务地址,写节奏的部分完全一样。
 
 ### 它能写哪些音乐风格?
 
@@ -179,12 +218,13 @@ drumai_skill/
 ├── .mcp.json                 # MCP server declaration
 ├── .env.example              # environment variable sample
 ├── references/               # detailed notes for the assistant
+│   ├── cli.md                # drumai 命令行工具(首选通道)
 │   ├── tools.md              # every tool: parameters, returns, error semantics
 │   ├── footguns.md           # writing traps and their correct forms
 │   ├── recipes.md            # end-to-end recipes with the call sequences
 │   ├── samples.md            # real exports drawn as wireframe scores
-│   ├── channels.md           # protocols for each way of reaching the service
-│   └── setup.md              # requirements, configuration, troubleshooting
+│   ├── channels.md           # 每种接入引擎方式的协议
+│   └── setup.md              # 环境要求、安装、配置、故障排查
 └── scripts/
     └── call.sh               # command-line access to the service
 ```

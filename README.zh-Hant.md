@@ -12,6 +12,15 @@
 
 這個儲存庫就是讓這一切成真的技能。它把 AI 助理接到 Drum AI 的 PRESET 服務，讓助理能挑鼓組、寫節奏型、補上細節，最後交給你一個連結匯入。
 
+連線方式有兩種，助理會採用第一個可用的：
+
+| | 需要 | 可離線運作 |
+| --- | --- | --- |
+| **`drumai` 命令列工具**（首選——一行 Homebrew 安裝） | CLI | 可以 |
+| **透過 MCP 的 Drum AI PRESET 服務**——無需安裝任何東西 | 支援 MCP 的用戶端 | 不行 |
+
+CLI 之所以首選，是因為它完全在你自己的機器上執行：不需要連上任何服務，也不必設定任何位址；而且當 App 在同一台 Mac 上開著時，它能把節奏型直接送進去並播放。MCP 服務則完全不需要安裝，所以當你不想安裝任何東西時，它是更好的選擇。兩者產生的節奏型完全相同。
+
 ---
 
 ## Drum AI 是什麼？
@@ -38,13 +47,14 @@
 
 ## 這個技能能做什麼
 
-這個儲存庫不含 App 本身。它是一套**給 AI 助理用的技能**（Claude Code，以及任何支援 MCP 的用戶端）。安裝後，助理就能直接連上 Drum AI 的 PRESET 服務，也就是 App 所用的同一套編曲引擎。
+這個儲存庫不含 App 本身。它是一套**給 AI 助理用的技能**（Claude Code，以及任何支援 MCP 的用戶端）。安裝後，助理就能直接連上 Drum AI 的編曲引擎——也就是 App 所用的同一套引擎——無論是透過 `drumai` 命令列工具，還是透過 PRESET 服務。
 
 實際用起來是這樣：
 
 - 你說出你要什麼——「幫我做一段 140 BPM、Hi-Hat 會連滾的 trap 節奏」、「給我一段 90 BPM 的 boom bap 律動」、「寫一段雙大鼓的金屬節奏」。
 - 助理會挑一組鼓組，逐一寫出每個聲部的節奏，並處理好細節：力度重音、ratchet、flam、律動、人性化。
 - 它交給你**一個連結**。打開連結、看一下預覽，就能把節奏型匯入 Drum AI。
+- 若已安裝 CLI，且 App 在同一台 Mac 上開著，它也能略過連結：把節奏型直接送進 App 並開始播放，讓你在任何東西交付之前就先聽到。
 
 你也可以反過來操作：把 App 裡既有的節奏型貼上來，助理會讀懂它、說明鼓在打什麼，並重新改寫。
 
@@ -52,7 +62,19 @@
 
 ### 安裝這個技能
 
-在 Claude Code 裡，只要兩道指令：
+**建議先安裝 `drumai` 命令列工具。** 它只要一行 Homebrew 指令就能裝好，不需要任何服務，也不需要網路，而且是助理偏好的管道。
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+這三行都必須執行：Homebrew 6 與之後的版本，在第三方 tap 未經信任之前不會載入它的 formula，所以略過中間那行會失敗並出現 `Refusing to load formula govo/tap/drumai from untrusted tap`。在比 6 更舊的 Homebrew 上沒有 `trust` 子指令——請刪掉那一行。想跳過 Homebrew 嗎？已簽章並公證的執行檔在 [Releases](https://github.com/govo/drumai-cli/releases/latest) 上，每種架構各一個，而且 CLI 不需要 Node.js。用 `drumai version` 驗證。
+
+如果你不想安裝任何東西，那也不必：這個技能同樣能透過公開的 PRESET 服務運作，完全不需要在本機做任何設定。助理找到 CLI 時就用 CLI，找不到時就退回使用服務。你永遠不必自己選——而且你隨時可以請助理帶你走一遍安裝流程。
+
+**接著安裝這個技能。** 在 Claude Code 裡，只要兩道指令：
 
 ```
 /plugin marketplace add govo/drumak_skill
@@ -76,7 +98,7 @@
 }
 ```
 
-**完全沒有 MCP 用戶端嗎？** 這裡有一支 Shell 指令碼可以連到同一個服務，也提供單純的 JSON-RPC 介面。系統需求、設定方式、指令碼介面與疑難排解都在 [references/setup.md](references/setup.md)。
+**完全沒有 MCP 用戶端嗎？** `drumai` CLI 本身就能獨立運作，另外還有一支 Shell 指令碼可以連到同一個服務，以及一條單純的 JSON-RPC 路徑。系統需求、設定方式、安裝與疑難排解都在 [references/setup.md](references/setup.md)；完整的 CLI 參考文件是 [references/cli.md](references/cli.md)。
 
 ---
 
@@ -94,8 +116,9 @@
 | 分離出的音軌 | 大鼓、小鼓、Hi-Hat、銅鈸 |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | 官方網站 | <https://c1c1.online/drumanalyse/> |
-| 本儲存庫 | 給 AI 助理用的 Drum AI Preset MCP 技能 |
+| 本儲存庫 | 給 AI 助理用的 Drum AI Preset 技能 |
 | 技能服務 | <https://c1c1.online/drumai_mcp> |
+| 命令列工具 | `brew tap govo/tap && brew trust govo/tap && brew install drumai` |
 | 輸出 | 一個包含節奏型的匯入連結 |
 
 ---
@@ -128,11 +151,27 @@ Drum AI Preset 技能就是這個儲存庫。它是給 AI 助理用的外掛，�
 
 ### 使用這個技能需要自己架伺服器嗎？
 
-不需要。這個技能預設指向 Drum AI PRESET 服務的公開部署，安裝後即可直接使用。只有當你要針對這個服務開發時，自行架設才有意義。
+不需要。裝好 `drumai` 命令列工具之後，就完全不會涉及任何伺服器——節奏型在你自己的機器上建立，不需要網路。另一個管道預設指向 Drum AI PRESET 服務的公開部署，安裝後即可直接使用。只有當你要針對這個服務開發時，自行架設一份才有意義。
+
+### 有命令列工具嗎？
+
+有，而且這是使用這個技能的建議方式。`drumai` 是單一一個經簽章與公證的執行檔，透過 Homebrew 安裝：
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+它不需要 Node.js，可離線運作，涵蓋全部十九種節奏型建構操作，以及能直接與 App 溝通的指令——開始與停止播放、切換 PRESET 或鼓組、讀取目前載入的節奏型，還有不必透過連結就把節奏型寫進 App。它與服務和 App 用的是同一套引擎，所以產生的節奏型完全相同。完整參考文件：[references/cli.md](references/cli.md)。
+
+### 助理可以幫我安裝 CLI 嗎？
+
+只要你開口要求並且同意，它就能執行那三行 Homebrew 指令。要在你的機器上安裝軟體是你的決定，所以助理應該先向你確認。如果你不想安裝任何東西，也不會有問題：助理會退回使用 PRESET 服務，那不需要在本機做任何設定。
 
 ### 哪些 AI 助理可以使用這個技能？
 
-任何支援 MCP 的用戶端都可以，包括 Claude Code、Claude Desktop 和 Cursor。Claude Code 是最簡單的路徑，因為這個儲存庫可以安裝成外掛，並自動完成服務註冊。無法使用 MCP 但能執行 Shell 的用戶端，則可以改用內附的指令碼。至於只能讀文字的助理，例如 ChatGPT，只要提供服務位址，寫節奏型的部分運作方式完全相同。
+任何支援 MCP 的用戶端都可以，包括 Claude Code、Claude Desktop 和 Cursor。Claude Code 是最簡單的路徑，因為這個儲存庫可以安裝成外掛，並自動完成服務註冊。任何能執行 Shell 的助理，則可以改用 `drumai` CLI，它不需要 MCP 支援，也不需要服務。再不然，內附的指令碼也能連到同一個服務。至於只能讀文字的助理，例如 ChatGPT，只要提供服務位址，寫節奏型的部分運作方式完全相同。
 
 ### 它能寫哪些曲風？
 
@@ -179,12 +218,13 @@ drumai_skill/
 ├── .mcp.json                 # MCP server declaration
 ├── .env.example              # environment variable sample
 ├── references/               # detailed notes for the assistant
+│   ├── cli.md                # drumai 命令列工具（首選管道）
 │   ├── tools.md              # every tool: parameters, returns, error semantics
 │   ├── footguns.md           # writing traps and their correct forms
 │   ├── recipes.md            # end-to-end recipes with the call sequences
 │   ├── samples.md            # real exports drawn as wireframe scores
-│   ├── channels.md           # protocols for each way of reaching the service
-│   └── setup.md              # requirements, configuration, troubleshooting
+│   ├── channels.md           # 各種連接引擎方式的協定
+│   └── setup.md              # 系統需求、安裝、設定、疑難排解
 └── scripts/
     └── call.sh               # command-line access to the service
 ```

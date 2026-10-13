@@ -1,7 +1,16 @@
 # End-to-End Recipes
 
-Four complete, runnable recipes, all copied verbatim from calls that passed in real testing. The examples are written for the script channel (`bash scripts/call.sh ...`),
-so when you go through the MCP tool channel, just move the "tool name + JSON" over as-is.
+Four complete, runnable recipes, all copied verbatim from calls that passed in real testing. The
+examples are written as **tool name + JSON arguments**, which is the form every channel can read:
+
+| Channel | How the example maps across |
+| --- | --- |
+| MCP tools | call the tool with that argument object |
+| `drumai` CLI | `drumai <subcommand> <same flags>` — both the JSON and the CLI spelling are given for each recipe |
+| Script | `bash scripts/call.sh <tool name> '<JSON arguments>'` |
+
+The CLI spelling of every tool is in `cli.md` §4; the guide below keeps it next to the JSON so you
+can move between channels without looking anything up.
 
 All four recipes follow the same skeleton:
 
@@ -31,6 +40,26 @@ pick a kit → write the pattern (all voices in one pass) → add a fill → sel
 3) validate_draft        {"draftId":"..."}
 4) render_preset         {"draftId":"..."}
 ```
+
+Same recipe on the CLI:
+
+```bash
+D=$(drumai draft create --kit kit-8 --name "Skill House 124" --bpm 124 \
+      --cells 4 --bars 1 --humanize 0.02 | jq -r .draftId)
+
+drumai draft voice "$D" --voices '[
+  {"index":0,"triggers":"x---x---x---x---"},
+  {"index":3,"hits":[{"beat":2,"offset":"downbeat"},{"beat":4,"offset":"downbeat"}]},
+  {"index":5,"triggers":"--x---x---x---x-"},
+  {"index":4,"triggers":"x-x-x-x-x-x-x-x-",
+   "velocities":{"0":0.7,"2":1,"4":0.7,"6":1,"8":0.7,"10":1,"12":0.7,"14":1}}]'
+
+drumai draft validate "$D"
+drumai render "$D"
+```
+
+Note that `--cells` is the CLI spelling of `cellsPerQuarter`, and that the `voices` array is passed
+through unchanged — the JSON is the same on every channel.
 
 Key points:
 
@@ -68,6 +97,25 @@ but it only gives you the `grid16th` skeleton; you still have to add the velocit
 4) validate_draft → render_preset
 ```
 
+Same recipe on the CLI:
+
+```bash
+D=$(drumai draft create --kit kit-18 --name "Skill BoomBap 92" --bpm 92 \
+      --cells 4 --bars 4 --groove swing:0.22 --humanize 0.08 | jq -r .draftId)
+
+drumai draft voice "$D" --voices '[
+  {"index":0,"triggers":"x-------x-x-----x-------x-x-----x-------x-x-----x-------x-x---x-"},
+  {"index":2,"triggers":"----x-------x-------x-------x-------x-------x-------x-------x---"},
+  {"index":4,"triggers":"x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-"}]'
+
+drumai draft fill "$D" --mode lastBar --voices '[{"index":2}]' --seed 7
+
+drumai draft validate "$D" && drumai render "$D"
+```
+
+`--groove` takes the same `kind:amount` pair as the JSON `groove` array. Everything else is passed
+through verbatim.
+
 Key points:
 
 - `lastBar` has `minBars` 2, so 4 bars is enough;
@@ -98,6 +146,23 @@ Key points:
 
 3) Confirm the ratchet was really written (see below)
 4) validate_draft → render_preset
+```
+
+Same recipe on the CLI:
+
+```bash
+D=$(drumai draft create --kit kit-10 --name "Skill Trap 140" --bpm 140 \
+      --cells 4 --bars 2 --humanize 0.02 | jq -r .draftId)
+
+drumai draft voice "$D" --voices '[
+  {"index":0,"triggers":"x-----x---x-----x-----x---x-----"},
+  {"index":2,"triggers":"--------x---------------x-------"},
+  {"index":3,"triggers":"--------x---------------x-------"},
+  {"index":4,"triggers":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "ratchets":"------------r-r-----------------",
+   "velocities":{"0":1,"2":0.6,"4":0.75,"8":1,"12":0.7}}]'
+
+drumai draft validate "$D" && drumai render "$D"
 ```
 
 **Every grid string's length must equal `bars × stepsPerBar`** (here 2 × 16 = 32).
@@ -133,6 +198,16 @@ Measured in practice, the output of this path looks like:
 
 This is also **the only way to prove the sound details to yourself before delivery**, and it's worth making a habit.
 
+On the CLI the same round trip is two commands, and `wireframe` is the more readable half — it prints
+the `ratchets` string back in `voices[]` alongside the score, so you can see the rolls without
+decoding anything:
+
+```bash
+P=$(drumai render "$D" | jq -r .url | sed 's/.*p=//')
+drumai wireframe --input "$P"     # score + voices[].ratchets
+drumai parse     --input "$P"     # the spec itself, if you intend to edit
+```
+
 ---
 
 ## Recipe 4: Start from a built-in PRESET and turn it into 4 bars
@@ -162,6 +237,23 @@ This is the one most easily written as a "4-bar PRESET where only bar 1 makes so
 5) validate_draft → render_preset
 ```
 
+Same recipe on the CLI:
+
+```bash
+drumai presets show preset-slime-time          # step 1: note kitId / bpm / voices[].grids[0]
+
+D=$(drumai draft create --kit kit-10 --name "Slime Time" --bpm 124 \
+      --from-preset preset-slime-time | jq -r .draftId)
+
+drumai draft update "$D" --bars 4               # step 3: bars 2-4 are empty right after this
+
+drumai draft voice "$D" --voices '[             # step 4: grids[0] written out 4 times
+  {"index":0,"triggers":"<grids[0] x4, 64 chars>"},
+  {"index":1,"triggers":"<grids[0] x4, 64 chars>"}]'
+
+drumai draft validate "$D" && drumai render "$D"
+```
+
 Key points:
 
 - **There may be grids beyond `grids[0]`**: the original 22 built-in PRESETs store 4 variations (the newer
@@ -185,6 +277,14 @@ Key points:
    → returns the spec (wire field names: g / r / f / vel / var)
 2) Edit this spec
 3) render_preset {"spec": <the edited spec>}
+```
+
+Same recipe on the CLI (`parse` returns a wrapper, so take `.spec` out of it):
+
+```bash
+drumai parse --input "DHP2;k=kit-10;b=124;n=...;d=..." | jq '.spec' > spec.json
+# edit spec.json
+drumai render --spec @spec.json
 ```
 
 Key points:
@@ -213,6 +313,14 @@ and reading a grid out of it means counting characters. `render_wireframe` takes
    → score: the pattern as a wireframe score
    → voices[]: only the voices with notes, each with its triggers string
    → silentVoices[], plus notes about dropped fields / velocities / ratchets / flams
+```
+
+On the CLI it is one command, and it also accepts a file or stdin, which saves quoting a long blob:
+
+```bash
+drumai wireframe --input "DHP2;k=kit-10;b=124;n=...;d=..."
+drumai wireframe --input @share.txt
+pbpaste | drumai wireframe --input -
 ```
 
 Quote the `score` block back to the user in your reply (a code block keeps the columns aligned) and describe

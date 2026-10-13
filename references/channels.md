@@ -1,10 +1,20 @@
-# Three channels: how to connect to this service
+# Four channels: how to reach Drum AI's sequencing engine
 
-All three channels go through the **same tool registry** (the 19 tools registered in the same `mcp.ts`),
-with identical capabilities; the only difference is "how far your client can go". Follow the order in the first section of SKILL.md and pick the first one that works.
+Channels 1 through 4 offer the **same 19 generation operations**, backed by the same engine, so the
+music you can make does not depend on which one you pick. The difference is what else each can do and
+what it needs in order to work. Follow the order in the first section of `SKILL.md` and take the first
+one that works.
+
+| Channel | Needs | Extra capability |
+| --- | --- | --- |
+| 1. `drumai` CLI | the CLI installed (Homebrew) | **works offline; drives the app directly** |
+| 2. MCP client | the service reachable | — |
+| 3. Script | the service reachable, curl, Node 20+ | — |
+| 4. Raw JSON-RPC | the service reachable, any HTTP client | — |
 
 Service endpoints at a glance (the default address is `https://c1c1.online/drumai_mcp`, already declared in the `.mcp.json`
-that ships with this skill; see `.env` when switching to a self-hosted service):
+that ships with this skill; see `.env` when switching to a self-hosted service). **Only channels 2-4 use these** — the CLI
+never talks to the service to build a pattern:
 
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
@@ -22,7 +32,34 @@ curl -s https://c1c1.online/drumai_mcp/healthz
 
 ---
 
-## Channel 1: MCP client (preferred)
+## Channel 1: the `drumai` CLI (preferred)
+
+Everything the other three do, done on the user's own machine, with nothing to reach and nothing to
+configure. It also has commands the others do not: transport control in the app, pushing a pattern
+straight into the app, and reading back whatever the app currently has loaded.
+
+```bash
+brew tap govo/tap
+brew trust govo/tap          # Homebrew 6+: required before a third-party tap will load
+brew install drumai
+drumai version
+```
+
+Then it is the same flow with subcommands instead of tools — `drumai kits`, `drumai kit kit-10`,
+`drumai draft create ...`, `drumai draft voice ...`, `drumai render ...`.
+
+Two things that differ from the other channels, both of which will bite if you miss them:
+
+- **The web link is only as good as `PUBLIC_BASE_URL`** (default: a loopback address). The deeplink
+  always works. See `cli.md` §6.
+- **CLI drafts live in a local file, not in the service's memory.** Ids look identical and are not
+  interchangeable. See `cli.md` §7.
+
+Full reference: **`cli.md`**.
+
+---
+
+## Channel 2: MCP client
 
 **Claude Code uses the `.mcp.json` that ships with this skill — no hand-written config needed** — as long as this skill is installed
 as a plugin (see the installation section of `README.md`), the `drumai-preset` server is registered automatically.
@@ -51,7 +88,7 @@ Tool names are case-sensitive and carry no prefix; do not write things like `mcp
 
 ---
 
-## Channel 2: script channel (you can run a shell but have no MCP client)
+## Channel 3: script channel (you can run a shell but have no MCP client)
 
 ```bash
 bash scripts/call.sh <tool name> '<JSON args>'
@@ -68,7 +105,7 @@ then prints the `content[0].text` that comes back.
 
 ---
 
-## Channel 3: raw JSON-RPC (self-built agents, script pipelines)
+## Channel 4: raw JSON-RPC (self-built agents, script pipelines)
 
 The server exposes a **stateless compatibility path** on `/mcp`, so **there is no need to call `initialize` first** —
 you can call `tools/call` and `tools/list` directly. Verified in practice.

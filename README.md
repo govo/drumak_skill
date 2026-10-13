@@ -10,7 +10,16 @@
 
 Describe a beat in plain language, get back a link, open the link, and the pattern is in your Drum AI drum machine — ready to play, edit, and practise with.
 
-This repository is the skill that makes that work. It connects an AI assistant to Drum AI's PRESET service, so the assistant can choose a kit, write the pattern, add the detail, and hand you a link to import.
+This repository is the skill that makes that work. It connects an AI assistant to Drum AI's sequencing engine, so the assistant can choose a kit, write the pattern, add the detail, and hand you a link to import.
+
+There are two ways to connect, and the assistant takes the first that is available:
+
+| | Needs | Works offline |
+| --- | --- | --- |
+| **The `drumai` command-line tool** (preferred — one Homebrew install) | the CLI | yes |
+| **The Drum AI PRESET service** over MCP — nothing to install | an MCP-capable client | no |
+
+The CLI is preferred because it runs entirely on your own machine: there is no service to reach and no address to configure, and while the app is open on the same Mac it can push the pattern straight in and play it. The MCP service needs no installation at all, so it is the better choice when you would rather not install anything. Both produce the same patterns.
 
 ---
 
@@ -38,21 +47,34 @@ One App Store listing covers all three devices, and the same project file opens 
 
 ## What this skill does
 
-This repository does not contain the app. It is a **skill for AI assistants** (Claude Code, and any client that speaks MCP). Installing it gives the assistant a direct line to Drum AI's PRESET service, which is the same sequencing engine the app uses.
+This repository does not contain the app. It is a **skill for AI assistants** (Claude Code, and any client that speaks MCP). Installing it gives the assistant a direct line to Drum AI's sequencing engine — the same engine the app uses — either through the `drumai` command-line tool or through the PRESET service.
 
 What that means in practice:
 
 - You say what you want — "make me a 140 BPM trap beat with a rolling hi-hat", "give me a boom bap groove at 90 BPM", "write a double bass metal pattern".
 - The assistant picks a kit, writes the pattern voice by voice, and works out the detail: velocity accents, ratchets, flams, groove, humanize.
 - It hands you **one link**. Open the link, look at the preview, and import the pattern into Drum AI.
+- With the CLI installed and the app open on the same Mac, it can also skip the link: push the pattern straight into the app and start playback, so you hear it before anything is delivered.
 
 You can also go the other way: paste a pattern you already have in the app, and the assistant will read it, explain what the drums are doing, and rework it.
 
-**What it cannot do:** the assistant cannot install the app, open it, or import the pattern for you. Importing is one tap on your own device, from the link.
+**What it cannot do:** the assistant cannot install the app or import the pattern for you — importing is one tap on your own device, from the link. With the CLI it can drive an app that is already running on the same Mac, but it cannot put the app on your phone.
 
 ### Install this skill
 
-In Claude Code, two commands:
+**Recommended first: install the `drumai` command-line tool.** It is a one-line Homebrew install, it needs no service and no network, and it is the channel the assistant prefers.
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+All three lines are needed: Homebrew 6 and later will not load a formula from a third-party tap until it is trusted, so skipping the middle line fails with `Refusing to load formula govo/tap/drumai from untrusted tap`. On Homebrew older than 6 there is no `trust` subcommand — drop that line. Prefer to skip Homebrew? The signed and notarized binaries are on [Releases](https://github.com/govo/drumai-cli/releases/latest), one per architecture, and the CLI needs no Node.js. Verify with `drumai version`.
+
+If you would rather not install anything, you do not have to: the skill also works through the public PRESET service, with no local setup at all. The assistant uses the CLI when it finds it and falls back to the service when it does not. You never have to choose — and you can always ask the assistant to walk you through the install.
+
+**Then install the skill.** In Claude Code, two commands:
 
 ```
 /plugin marketplace add govo/drumak_skill
@@ -76,7 +98,7 @@ Then just describe the beat you want. Run `/mcp` to confirm the server is connec
 }
 ```
 
-**No MCP client at all?** There is a shell script that reaches the same service, and a plain JSON-RPC path. Requirements, configuration, the script interface, and troubleshooting are in [references/setup.md](references/setup.md).
+**No MCP client at all?** The `drumai` CLI works on its own, and there is a shell script that reaches the same service plus a plain JSON-RPC path. Requirements, configuration, installation, and troubleshooting are in [references/setup.md](references/setup.md); the full CLI reference is [references/cli.md](references/cli.md).
 
 ---
 
@@ -94,8 +116,9 @@ Then just describe the beat you want. Run `/mcp` to confirm the server is connec
 | Stems separated | Kick, snare, hi-hat, cymbals |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | Official website | <https://c1c1.online/drumanalyse/> |
-| This repository | Drum AI Preset MCP skill for AI assistants |
+| This repository | Drum AI Preset skill for AI assistants |
 | Skill service | <https://c1c1.online/drumai_mcp> |
+| Command-line tool | `brew tap govo/tap && brew trust govo/tap && brew install drumai` |
 | Output | One import link containing the pattern |
 
 ---
@@ -128,11 +151,27 @@ The Drum AI Preset skill is this repository. It is an add-on for AI assistants t
 
 ### Do I need a server of my own to use this skill?
 
-No. The skill points at a public deployment of Drum AI's PRESET service by default, and it works as-is after installation. Running your own copy is only useful if you are developing against the service.
+No. With the `drumai` command-line tool installed there is no server involved at all — the pattern is built on your own machine, with no network. The other channel points at a public deployment of Drum AI's PRESET service by default and works as-is after installation. Running your own copy of the service is only useful if you are developing against it.
+
+### Is there a command-line tool?
+
+Yes, and it is the recommended way to use this skill. `drumai` is a single signed and notarized binary installed through Homebrew:
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+It needs no Node.js, works offline, and covers all nineteen pattern-building operations plus commands that talk to the app directly — start and stop playback, switch PRESET or kit, read whatever pattern is currently loaded, and write a pattern into the app without going through a link. It is the same engine the service and the app use, so the patterns are identical. Full reference: [references/cli.md](references/cli.md).
+
+### Can the assistant install the CLI for me?
+
+It can run the three Homebrew lines, if you ask it to and agree. Installing software on your machine is your call, so the assistant should confirm first. If you would rather not install anything, nothing breaks: the assistant falls back to the PRESET service, which needs no local setup.
 
 ### Which AI assistants can use this skill?
 
-Any client that supports MCP, including Claude Code, Claude Desktop, and Cursor. Claude Code is the simplest path, because this repository can be installed as a plugin that registers the service automatically. Clients that cannot use MCP but can run a shell can use the bundled script instead. For assistants that can only read text, such as ChatGPT, the pattern-writing works the same once the service address is provided.
+Any client that supports MCP, including Claude Code, Claude Desktop, and Cursor. Claude Code is the simplest path, because this repository can be installed as a plugin that registers the service automatically. Any assistant that can run a shell can use the `drumai` CLI instead, which needs no MCP support and no service. Failing that, the bundled script reaches the same service. For assistants that can only read text, such as ChatGPT, the pattern-writing works the same once the service address is provided.
 
 ### What musical styles can it write?
 
@@ -179,12 +218,13 @@ drumai_skill/
 ├── .mcp.json                 # MCP server declaration
 ├── .env.example              # environment variable sample
 ├── references/               # detailed notes for the assistant
+│   ├── cli.md                # the drumai command-line tool (the preferred channel)
 │   ├── tools.md              # every tool: parameters, returns, error semantics
 │   ├── footguns.md           # writing traps and their correct forms
 │   ├── recipes.md            # end-to-end recipes with the call sequences
 │   ├── samples.md            # real exports drawn as wireframe scores
-│   ├── channels.md           # protocols for each way of reaching the service
-│   └── setup.md              # requirements, configuration, troubleshooting
+│   ├── channels.md           # protocols for each way of reaching the engine
+│   └── setup.md              # requirements, installation, configuration, troubleshooting
 └── scripts/
     └── call.sh               # command-line access to the service
 ```

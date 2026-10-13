@@ -9,11 +9,47 @@ There is nothing to install on the Drum AI app side — the app is a normal App 
 
 ## 1. Requirements
 
-- **The default address is the public deployment at `https://c1c1.online/drumai_mcp`.** It works out of the box,
-  with no need to run your own server.
+- **Nothing at all**, if you use the `drumai` CLI. It is self-contained, needs no Node.js, and works with no
+  network — see "Installing the CLI" below.
+- **The default address is the public deployment at `https://c1c1.online/drumai_mcp`**, for the other three channels.
+  It works out of the box, with no need to run your own server.
 - **Node.js 20 or newer**, if you use the script channel. `scripts/call.sh` uses node to assemble JSON and parse responses.
 - The script channel needs only `curl` and `node`; no extra packages to install.
 - The MCP channel needs nothing beyond an MCP-capable client.
+
+### Installing the CLI (the preferred channel)
+
+Three lines, and it needs no Node.js and no service:
+
+```bash
+brew tap govo/tap
+brew trust govo/tap          # Homebrew 6 and later: required before a third-party tap will load
+brew install drumai
+drumai version
+```
+
+**All three lines are needed.** Homebrew 6+ refuses to load a formula from an untrusted third-party tap, and
+dropping the `brew trust` line fails with `Refusing to load formula govo/tap/drumai from untrusted tap`.
+On Homebrew older than 6 there is no `trust` subcommand — drop that one line. `govo/tap` contains nothing
+but `drumai`, so trusting the tap trusts nothing else.
+
+Without Homebrew, download the tarball for your architecture from
+[Releases](https://github.com/govo/drumai-cli/releases/latest) and move the binary onto your `PATH`:
+
+```bash
+tar -xzf drumai-0.1.0-darwin-arm64.tar.gz     # or -x64 on Intel
+sudo mv drumai /usr/local/bin/
+```
+
+Both are signed with a Developer ID certificate and notarized, so Gatekeeper accepts them. macOS 13 or later.
+
+If the user does not have the CLI and does not want to install it, **do not treat that as a failure** — switch
+to the MCP tools and carry on; the beat is the same. See `cli.md` §1. The CLI is preferred only because it is
+faster to use, not because the other channels can do less.
+
+**If you are an agent asked to help the user install it**: run the three lines only if they agree, then confirm
+with `command -v drumai && drumai version`. If `brew trust` is rejected because their Homebrew predates 6, drop
+that line rather than reaching for `HOMEBREW_NO_REQUIRE_TAP_TRUST`, which is a deprecated escape hatch.
 
 Smoke check — if this answers, the service is up:
 
@@ -125,15 +161,22 @@ What you commit is `.env.example`.
 
 ---
 
-## 4. Choosing among the three channels
+## 4. Choosing among the four channels
+
+**Take the first one that is available.**
 
 | Scenario | Which channel | How to use it |
 | --- | --- | --- |
+| `command -v drumai` prints a path | **`drumai` CLI** | `drumai draft create ...` — local, no service, and it can drive the app (see `cli.md`) |
 | MCP already configured in the client | **MCP tools** | Call them directly — full capability, 19 tools. Tool names are `create_draft` and the like |
 | Client does not support MCP but can run a shell | **Script channel** | `bash scripts/call.sh <tool name> '<JSON>'` — same capability as MCP |
 | Neither | **Raw JSON-RPC** | POST to `<address>/mcp` yourself; protocol details in `channels.md` |
 
-All three channels go through the same tool registry and have exactly the same capability.
+All four go through the same tool registry and can generate exactly the same patterns; only the CLI adds the
+commands that talk to the app, and only the CLI works with no service reachable.
+
+**Do not switch channels mid-job.** A draft created on one channel does not exist on another — the CLI keeps
+drafts in a local file, the service keeps them in memory. See `cli.md` §7 and `footguns.md`.
 
 **Where the address comes from**: the MCP tools channel is declared by `.mcp.json` (Claude Code reads it automatically, no manual
 setup); the script and raw JSON-RPC channels are determined by `DRUMAI_MCP_URL` / `.env` — a separate source from `.mcp.json`, and
@@ -233,6 +276,9 @@ only that machine can open — see section 5.
 
 | Symptom | Cause |
 | --- | --- |
+| `drumai: command not found` | the CLI is not installed, or not on `PATH`. Offer the three install lines in section 1; meanwhile carry on with the MCP tools |
+| `Refusing to load formula ... from untrusted tap` | Homebrew 6+ and `brew trust govo/tap` was not run — see section 1 |
+| The CLI's web link points at `localhost` or `127.0.0.1` | the CLI's `PUBLIC_BASE_URL` is unset; hand over the deeplink instead (`cli.md` §6) |
 | `Cannot reach the service:` | the service is not started, or the address is wrong (`.env` / `DRUMAI_MCP_URL`). Try `curl <address>/healthz` first |
 | `The service did not return an MCP response` | the endpoint is missing `/mcp` and hit the root path or some other path |
 | `草稿不存在或已过期` | drafts live in service process memory; they expire after 2 hours and are lost on restart. Run `create_draft` again |

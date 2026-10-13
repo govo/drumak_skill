@@ -12,6 +12,15 @@ Describe un ritmo en lenguaje natural, recibe un enlace, ábrelo y el patrón ya
 
 Este repositorio es la skill que lo hace posible. Conecta un asistente de IA con el servicio de presets de Drum AI, de modo que el asistente puede elegir un kit, escribir el patrón, añadir el detalle y entregarte un enlace para importarlo.
 
+Hay dos formas de conectarse, y el asistente usa la primera que esté disponible:
+
+| | Requiere | Funciona sin conexión |
+| --- | --- | --- |
+| **La herramienta de línea de comandos `drumai`** (la preferida — una sola instalación con Homebrew) | la CLI | sí |
+| **El servicio de presets de Drum AI** por MCP — nada que instalar | un cliente compatible con MCP | no |
+
+La CLI es la preferida porque se ejecuta por completo en tu propio equipo: no hay ningún servicio al que llegar ni ninguna dirección que configurar y, mientras la aplicación está abierta en el mismo Mac, puede introducir el patrón directamente en ella y reproducirlo. El servicio MCP no necesita ninguna instalación, así que es la mejor opción cuando prefieres no instalar nada. Ambos generan los mismos patrones.
+
 ---
 
 ## ¿Qué es Drum AI?
@@ -38,13 +47,14 @@ Una única ficha en el App Store cubre los tres dispositivos, y el mismo archivo
 
 ## Qué hace esta skill
 
-Este repositorio no contiene la aplicación. Es una **skill para asistentes de IA** (Claude Code y cualquier cliente compatible con MCP). Al instalarla, el asistente obtiene una línea directa con el servicio de presets de Drum AI, el mismo motor de secuenciación que utiliza la aplicación.
+Este repositorio no contiene la aplicación. Es una **skill para asistentes de IA** (Claude Code y cualquier cliente compatible con MCP). Al instalarla, el asistente obtiene una línea directa con el motor de secuenciación de Drum AI — el mismo motor que utiliza la aplicación —, ya sea a través de la herramienta de línea de comandos `drumai` o a través del servicio de presets.
 
 En la práctica, esto significa lo siguiente:
 
 - Tú dices lo que quieres: «hazme un ritmo trap a 140 BPM con redobles de charles», «dame un groove de boom bap a 90 BPM», «escríbeme un patrón de metal con doble bombo».
 - El asistente elige un kit, escribe el patrón voz a voz y define el detalle: acentos de intensidad, ratchets, flams, groove y humanize.
 - Te entrega **un solo enlace**. Ábrelo, consulta la vista previa e importa el patrón en Drum AI.
+- Con la CLI instalada y la aplicación abierta en el mismo Mac, también puede saltarse el enlace: introducir el patrón directamente en la aplicación e iniciar la reproducción, para que lo oigas antes de que se entregue nada.
 
 También puedes hacerlo al revés: pega un patrón que ya tengas en la aplicación y el asistente lo leerá, te explicará qué está haciendo la batería y lo reelaborará.
 
@@ -52,7 +62,19 @@ También puedes hacerlo al revés: pega un patrón que ya tengas en la aplicaci�
 
 ### Instalar esta skill
 
-En Claude Code, dos comandos:
+**Primero, lo más recomendable: instala la herramienta de línea de comandos `drumai`.** Es una instalación de una sola línea con Homebrew, no necesita ningún servicio ni conexión de red y es el canal que prefiere el asistente.
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+Las tres líneas son necesarias: Homebrew 6 y versiones posteriores no cargan una fórmula de un tap de terceros hasta que se confía en él, así que si te saltas la línea del medio falla con `Refusing to load formula govo/tap/drumai from untrusted tap`. En Homebrew anterior a la versión 6 no existe el subcomando `trust` — elimina esa línea. ¿Prefieres saltarte Homebrew? Los binarios firmados y notarizados están en [Releases](https://github.com/govo/drumai-cli/releases/latest), uno por arquitectura, y la CLI no necesita Node.js. Verifícala con `drumai version`.
+
+Si prefieres no instalar nada, no es obligatorio: la skill también funciona a través del servicio público de presets, sin ninguna configuración local. El asistente usa la CLI cuando la encuentra y recurre al servicio cuando no. Nunca tienes que elegir — y siempre puedes pedirle al asistente que te guíe en la instalación.
+
+**Después, instala la skill.** En Claude Code, dos comandos:
 
 ```
 /plugin marketplace add govo/drumak_skill
@@ -76,7 +98,7 @@ Después, solo tienes que describir el ritmo que quieras. Ejecuta `/mcp` para co
 }
 ```
 
-**¿No tienes ningún cliente MCP?** Hay un script de shell que llega al mismo servicio y una vía directa mediante JSON-RPC. Los requisitos, la configuración, la interfaz del script y la resolución de problemas están en [references/setup.md](references/setup.md).
+**¿No tienes ningún cliente MCP?** La CLI `drumai` funciona por sí sola, y hay un script de shell que llega al mismo servicio, además de una vía directa mediante JSON-RPC. Los requisitos, la configuración, la instalación y la resolución de problemas están en [references/setup.md](references/setup.md); la referencia completa de la CLI es [references/cli.md](references/cli.md).
 
 ---
 
@@ -94,8 +116,9 @@ Después, solo tienes que describir el ritmo que quieras. Ejecuta `/mcp` para co
 | Pistas separadas | Bombo, caja, charles y platillos |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | Sitio web oficial | <https://c1c1.online/drumanalyse/> |
-| Este repositorio | Skill MCP de presets de Drum AI para asistentes de IA |
+| Este repositorio | Skill de presets de Drum AI para asistentes de IA |
 | Servicio de la skill | <https://c1c1.online/drumai_mcp> |
+| Herramienta de línea de comandos | `brew tap govo/tap && brew trust govo/tap && brew install drumai` |
 | Salida | Un enlace de importación que contiene el patrón |
 
 ---
@@ -128,11 +151,27 @@ La skill Drum AI Preset es este repositorio. Es un complemento para asistentes d
 
 ### ¿Necesito un servidor propio para usar esta skill?
 
-No. La skill apunta por defecto a un despliegue público del servicio de presets de Drum AI y funciona tal cual una vez instalada. Ejecutar tu propia copia solo resulta útil si estás desarrollando contra el servicio.
+No. Con la herramienta de línea de comandos `drumai` instalada no hay ningún servidor de por medio — el patrón se construye en tu propio equipo, sin conexión. El otro canal apunta por defecto a un despliegue público del servicio de presets de Drum AI y funciona tal cual una vez instalado. Ejecutar tu propia copia del servicio solo resulta útil si estás desarrollando contra él.
+
+### ¿Existe una herramienta de línea de comandos?
+
+Sí, y es la forma recomendada de usar esta skill. `drumai` es un único binario firmado y notarizado que se instala a través de Homebrew:
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+No necesita Node.js, funciona sin conexión y cubre las diecinueve operaciones de creación de patrones, además de comandos que se comunican directamente con la aplicación — iniciar y detener la reproducción, cambiar de preset o de kit, leer el patrón que esté cargado en ese momento y escribir un patrón en la aplicación sin pasar por un enlace. Es el mismo motor que utilizan el servicio y la aplicación, así que los patrones son idénticos. Referencia completa: [references/cli.md](references/cli.md).
+
+### ¿Puede el asistente instalar la CLI por mí?
+
+Puede ejecutar las tres líneas de Homebrew, si se lo pides y estás de acuerdo. Instalar software en tu equipo es decisión tuya, así que el asistente debería confirmarlo antes. Si prefieres no instalar nada, no se rompe nada: el asistente recurre al servicio de presets, que no necesita ninguna configuración local.
 
 ### ¿Qué asistentes de IA pueden usar esta skill?
 
-Cualquier cliente compatible con MCP, incluidos Claude Code, Claude Desktop y Cursor. Claude Code es la vía más sencilla, porque este repositorio puede instalarse como un plugin que registra el servicio automáticamente. Los clientes que no pueden usar MCP pero sí ejecutar un shell pueden utilizar el script incluido. Para los asistentes que solo pueden leer texto, como ChatGPT, la escritura de patrones funciona igual una vez que se proporciona la dirección del servicio.
+Cualquier cliente compatible con MCP, incluidos Claude Code, Claude Desktop y Cursor. Claude Code es la vía más sencilla, porque este repositorio puede instalarse como un plugin que registra el servicio automáticamente. Cualquier asistente capaz de ejecutar un shell puede usar en su lugar la CLI `drumai`, que no necesita compatibilidad con MCP ni ningún servicio. Si ni siquiera eso es posible, el script incluido llega al mismo servicio. Para los asistentes que solo pueden leer texto, como ChatGPT, la escritura de patrones funciona igual una vez que se proporciona la dirección del servicio.
 
 ### ¿Qué estilos musicales puede escribir?
 
@@ -179,12 +218,13 @@ drumai_skill/
 ├── .mcp.json                 # MCP server declaration
 ├── .env.example              # environment variable sample
 ├── references/               # detailed notes for the assistant
+│   ├── cli.md                # la herramienta de línea de comandos drumai (el canal preferido)
 │   ├── tools.md              # every tool: parameters, returns, error semantics
 │   ├── footguns.md           # writing traps and their correct forms
 │   ├── recipes.md            # end-to-end recipes with the call sequences
 │   ├── samples.md            # real exports drawn as wireframe scores
-│   ├── channels.md           # protocols for each way of reaching the service
-│   └── setup.md              # requirements, configuration, troubleshooting
+│   ├── channels.md           # protocolos para cada forma de llegar al motor
+│   └── setup.md              # requisitos, instalación, configuración, resolución de problemas
 └── scripts/
     └── call.sh               # command-line access to the service
 ```

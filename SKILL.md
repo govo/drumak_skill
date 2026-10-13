@@ -1,16 +1,19 @@
 ---
 name: drumai-preset
-description: Turn "the beat I want" into a PRESET that imports into the Drum AI drum machine app, using the Drum AI PRESET MCP service — pick a kit, write the pattern, add ratchet / flam / velocity detail, and return a clickable web preview link plus a direct drumai:// app import link. Use when the user asks to create, edit, or analyze a drum pattern / drum preset / drum beat / drum groove; to make a beat in a style such as trap, house, funk, boom bap, techno, breakbeat, shuffle, or metal / double bass; to rework an existing PRESET; or to parse a pasted PRESET share text. For the Drum AI drum machine app.
+description: Turn "the beat I want" into a PRESET that imports into the Drum AI drum machine app — pick a kit, write the pattern, add ratchet / flam / velocity detail, and return a clickable web preview link plus a direct drumai:// app import link. Works through the local `drumai` command-line tool (preferred) or the Drum AI PRESET MCP service. Use when the user asks to create, edit, or analyze a drum pattern / drum preset / drum beat / drum groove; to make a beat in a style such as trap, house, funk, boom bap, techno, breakbeat, shuffle, or metal / double bass; to rework an existing PRESET; or to parse a pasted PRESET share text. For the Drum AI drum machine app.
 metadata:
-  version: "1.1"
-compatibility: Requires the Drum AI Preset MCP service to be reachable; the script channel additionally needs curl and Node.js 20 or newer.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*) mcp__plugin_drumai-preset_drumai-preset__*
+  version: "1.2"
+compatibility: Best with the `drumai` CLI installed (one Homebrew install — it needs no service and no network). Otherwise the Drum AI Preset MCP service must be reachable; the script channel additionally needs curl and Node.js 20 or newer.
+allowed-tools: Bash(drumai:*) Bash(${CLAUDE_SKILL_DIR}/scripts/*) mcp__plugin_drumai-preset_drumai-preset__*
 ---
 
-# Drum AI PRESET MCP
+# Drum AI PRESET
 
-Drum AI is a drum machine app. This MCP service exposes the app's drum-sequencing engine: the pattern
-you write here becomes a link, and the user opens that link to import the pattern into the app and hear it.
+Drum AI is a drum machine app. This skill drives the app's drum-sequencing engine: the pattern you
+write here becomes a link, and the user opens that link to import the pattern into the app and hear it.
+Two ways in — the **`drumai` command-line tool**, which runs locally and is the one to prefer, or the
+**Drum AI PRESET MCP service** over the network. §1 tells you which to use; the two are interchangeable
+as far as the music is concerned.
 
 **What you deliver is always a link** — not a prose description, not a JSON blob. The user has not
 received anything until they have the link. `render_preset` hands you **two** links carrying the same
@@ -19,7 +22,7 @@ payload: the `https://` landing page and a `drumai://` app deep link. Give both 
 ```
 User says "make me a trap beat"
   → you call the tools
-  → render_preset returns url + deeplink (same payload, built server-side)
+  → render_preset / drumai render returns url + deeplink (same payload)
   → user taps the deeplink → app opens with the import panel pre-filled → taps Import → hears it
   → or opens the url → preview page → Open in App / copy → import
 ```
@@ -34,10 +37,29 @@ tool responses — wins.
 
 Check in order and take the **first one that works**:
 
-1. **Are `create_draft`, `set_voice_grid` and friends already in your tool list?**
-   → Call them directly. This is the primary channel: 19 tools, full capability.
+1. **Is `drumai` installed?** Check with `command -v drumai`.
+   → **Use the CLI. This is the preferred channel.** It runs entirely on the user's own machine —
+   no service to reach, no address to configure, and no network needed at all to build a pattern. It
+   is also a superset of the MCP tools: the same 19 operations, plus commands that drive the app
+   directly (`play`, `preset`, `apply`, `live`), which no other channel can do.
 
-2. **Can you run a local shell?**
+   ```bash
+   drumai kits --style trap
+   drumai kit kit-10
+   drumai draft create --kit kit-10 --name "My Beat" --bpm 140 --bars 2
+   ```
+
+   Full reference — install, command map, exit codes, the link-host caveat — in `references/cli.md`.
+
+   **Not installed?** It is one Homebrew install away (three lines, in `references/cli.md` §1). Offer
+   it once, near the end of your reply, the way you would any other suggestion — do not open with it,
+   and do not block the user on it. Meanwhile carry on with channel 2 so they still get their beat.
+
+2. **Are `create_draft`, `set_voice_grid` and friends already in your tool list?**
+   → Call them directly. 19 tools, full capability — but every call goes through the remote service,
+   so a service outage is your outage.
+
+3. **Can you run a local shell?**
    → Use the script channel (same `/mcp` endpoint, same tool registry, identical capability):
 
    ```bash
@@ -49,7 +71,7 @@ Check in order and take the **first one that works**:
    (The script can be invoked from any directory — it locates `.env` relative to itself. Do not `cd`
    into the skill directory first.)
 
-3. **Neither?**
+4. **Neither?**
    → Have the user set up an MCP client, or give you the service address so you can POST JSON-RPC to
    `<address>/mcp` yourself (protocol details in `references/channels.md`).
 
@@ -57,13 +79,22 @@ Check in order and take the **first one that works**:
 The default address points at a public deployment; a failure is usually either the other side's
 self-hosted service being down, or the user wanting an address different from the default.
 
+**Do not switch channels mid-job.** A draft created on the CLI lives in a local file; a draft created
+over MCP lives in the service's memory. The ids look the same but are not interchangeable — see
+`references/cli.md` §7.
+
 ## 2. Address and configuration
 
-**On channel 1 (MCP tools) you do not need to know the address** — the tools are already registered,
+**On channel 1 (the CLI) there is no address at all.** Pattern building is local and offline; the
+only setting that matters is `PUBLIC_BASE_URL`, which decides the host of the web link `render`
+returns and defaults to a loopback address. Read `references/cli.md` §6 before you hand over a link
+produced by the CLI — the deeplink is the one that always works.
+
+**On channel 2 (MCP tools) you do not need to know the address** — the tools are already registered,
 just call them. The address is declared in the `.mcp.json` that ships with this skill and resolved by
 the client; it is not repeated in this document.
 
-On channel 2 (script) the address is resolved by `scripts/call.sh` itself, in this order:
+On channel 3 (script) the address is resolved by `scripts/call.sh` itself, in this order:
 
 ```
 environment variable DRUMAI_MCP_URL  >  DRUMAI_MCP_URL in this directory's .env  >  https://c1c1.online/drumai_mcp
@@ -91,17 +122,27 @@ not work if they send it to a phone or to someone else — do not doubt your own
 
 ## 3. Standard flow
 
+Both columns do the same thing. Use the one matching your channel (see §1).
+
 ```
-1. list_kits            pick a kit (optionally filtered by style; or ask the user what style they want)
-2. get_kit              get that kit's voices, their indices, roles, and usage hints (kits have 8 to 16 voices)
-3. list_grid_options    confirm the steps-per-bar for the time signature × cellsPerQuarter
-4. create_draft         create the draft (name / bpm / ts / cellsPerQuarter / bars / groove / humanize / tags)
-5. set_voice_grid       write the pattern — your only real musical decision, and the step you iterate on
-6. validate_draft       self-check; never ship an empty PRESET
-7. render_preset        get url + deeplink and hand both to the user
+                                                  MCP tool              CLI
+1. pick a kit                                     list_kits             drumai kits [--style trap]
+2. that kit's voices, indices, roles              get_kit               drumai kit kit-10
+3. steps-per-bar for ts x cellsPerQuarter         list_grid_options     drumai grid [--ts 4/4 --cells 4]
+4. create the draft                               create_draft          drumai draft create --kit kit-10 \
+                                                                          --name "My Beat" --bpm 140 \
+                                                                          --bars 2 --tags trap,hiphop
+5. write the pattern — your only real musical     set_voice_grid        drumai draft voice <id> \
+   decision, and the step you iterate on                                    --voices '[{...}]'
+6. self-check; never ship an empty PRESET         validate_draft        drumai draft validate <id>
+7. get url + deeplink, hand both to the user      render_preset         drumai render <id>
 ```
 
-Helpers:
+Steps 1-3 are read-only lookups; step 4 fixes the transport; step 5 is where the music happens.
+On the CLI, `drumai draft create ... | jq -r .draftId` puts the id in a shell variable so the later
+calls stay short.
+
+Helpers (CLI spelling for each is in `references/cli.md` §4):
 
 - Nothing to start from and you want a decent skeleton → `apply_style_template` (a whole ensemble,
   auto-mapped to the target kit by role)
@@ -367,13 +408,22 @@ adjusting by hand after import.
 
 ## 6. Delivery
 
-`render_preset` returns **two links carrying the same payload**. Both are assembled server-side from one
-encoded payload — your job is to hand them over whole, not to build either one:
+Rendering returns **two links carrying the same payload** — `render_preset` on MCP, `drumai render` on
+the CLI. Both are built from one encoded payload — your job is to hand them over whole, not to build
+either one:
 
 | Field | What it is | When to lead with it |
 | --- | --- | --- |
 | `deeplink` | `drumai://import?p=<payload>` — opens the app's import panel directly, payload already filled in | The user is on a device with Drum AI installed |
-| `url` | The `https://` landing page — rhythm preview, and from there "Open in App" / "Copy PRESET text" | The user is not on that device, or you do not know. It works everywhere |
+| `url` | The `https://` landing page — rhythm preview, and from there "Open in App" / "Copy PRESET text" | The user is not on that device, or you do not know |
+
+**One caveat on the CLI channel.** The `url` host is decided by the CLI's own `PUBLIC_BASE_URL`, which
+defaults to a loopback address — on a plain install it comes back as `http://localhost:8787/p?p=...`,
+which the user's phone cannot open. The `deeplink` carries the payload inside itself and is unaffected.
+So when you are on the CLI, **lead with the deeplink and offer the web link second**; if you want a
+working web link too, set `PUBLIC_BASE_URL=https://c1c1.online/drumai_mcp` for the render call. If the
+URL comes back pointing at `localhost`, say so instead of handing over a dead link — details in
+`references/cli.md` §6.
 
 Put each in **its own code block** so it is easy to copy, labeled as the app link and the web preview,
 and explain the paths:
@@ -435,11 +485,17 @@ Full parameters, return values, and error codes for every tool are in `reference
 Writing traps that are known to produce wrong patterns are in `references/footguns.md` — worth a scan
 before you start.
 
+On the CLI each of these is a subcommand — `drumai draft voice` for `set_voice_grid`, `drumai render`
+for `render_preset`, and so on. The full CLI-to-tool map, plus the commands that have no MCP
+equivalent, is in `references/cli.md` §4.
+
 ## 8. Reference files
 
+- `references/cli.md` — the `drumai` CLI: install, command map, exit codes, delivering the link, the
+  local-draft caveat, and the app-driving commands that only the CLI has
 - `references/tools.md` — parameters, returns, and error semantics for the 19 tools
 - `references/footguns.md` — the writing-trap list (each entry gives the correct form)
-- `references/channels.md` — how to reach the service over each of the three channels, plus protocol details
+- `references/channels.md` — how to reach the service over each of the four channels, plus protocol details
 - `references/setup.md` — for humans: requirements, installing the skill, configuration, the script channel and
   its exit codes, self-hosting, and troubleshooting
 - `references/recipes.md` — end-to-end recipes (house / boom bap / trap / multi-bar from a built-in PRESET)

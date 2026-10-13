@@ -336,3 +336,21 @@ jazz latin rnb reggae country blues metal soul disco edm world afrobeat`); the a
 
 **Right way**: pass tags whenever you can tell the style (the app filters by them, so an untagged PRESET is harder
 to find again); when you read tags back, look for the key itself rather than its length.
+
+---
+
+## 20. The CLI's drafts and the MCP service's drafts are two separate stores
+
+Not a grid trap but a channel one, and it belongs here because the failure gives no hint of the real cause.
+
+`drumai draft create` writes to a **local file** (`~/.drumai/drafts.json`, moved with `DRUMAI_HOME`) that never
+expires. The MCP `create_draft` writes into the **service process's memory**, where drafts expire after 2 hours
+and vanish when the service restarts.
+
+**Consequence**: a draft id from one channel used on the other reports "the draft does not exist or has expired"
+— the same message a genuinely expired draft gives, so it reads like a timeout rather than a wrong store. Both
+channels name ids `d_xxxxxxx`, so nothing about the id tells you which store it came from.
+
+**Right way**: pick a channel at the start of the job and stay on it, as SKILL.md §1 says. If you have to switch,
+rebuild the draft on the new channel rather than reusing the id. A draft you listed with `drumai draft list` and
+one from `list_drafts` are different sets, even when they look similar.

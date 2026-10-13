@@ -12,6 +12,15 @@
 
 이 저장소는 그 과정을 가능하게 하는 스킬입니다. AI 어시스턴트를 Drum AI의 PRESET 서비스에 연결해 주므로, 어시스턴트가 키트를 고르고 패턴을 쓰고 디테일을 더한 뒤 가져오기용 링크를 건네줄 수 있습니다.
 
+연결하는 방법은 두 가지이며, 어시스턴트는 사용할 수 있는 첫 번째 방법을 택합니다.
+
+| | 필요한 것 | 오프라인 동작 |
+| --- | --- | --- |
+| **`drumai` 커맨드라인 도구** (권장 — Homebrew 설치 한 번) | CLI | 예 |
+| **MCP를 통한 Drum AI PRESET 서비스** — 설치할 것 없음 | MCP 지원 클라이언트 | 아니요 |
+
+CLI를 권장하는 이유는 전적으로 사용자 자신의 컴퓨터에서 실행되기 때문입니다. 연결할 서비스도, 설정할 주소도 없으며, 같은 Mac에서 앱이 열려 있으면 패턴을 곧바로 밀어 넣어 재생할 수 있습니다. MCP 서비스는 설치가 전혀 필요 없으므로, 무언가를 설치하고 싶지 않을 때 더 나은 선택입니다. 둘 다 동일한 패턴을 만들어 냅니다.
+
 ---
 
 ## Drum AI란 무엇인가요?
@@ -38,13 +47,14 @@
 
 ## 이 스킬은 무엇을 하나요?
 
-이 저장소에는 앱이 들어 있지 않습니다. **AI 어시스턴트를 위한 스킬**(Claude Code, 그리고 MCP를 지원하는 모든 클라이언트)입니다. 설치하면 어시스턴트가 Drum AI의 PRESET 서비스에 직접 연결되며, 이는 앱이 사용하는 것과 동일한 시퀀싱 엔진입니다.
+이 저장소에는 앱이 들어 있지 않습니다. **AI 어시스턴트를 위한 스킬**(Claude Code, 그리고 MCP를 지원하는 모든 클라이언트)입니다. 설치하면 어시스턴트가 Drum AI의 시퀀싱 엔진, 즉 앱이 사용하는 것과 동일한 엔진에 직접 연결됩니다. `drumai` 커맨드라인 도구를 통해서든 PRESET 서비스를 통해서든요.
 
 실제로는 이런 뜻입니다.
 
 - 원하는 것을 말하면 됩니다. "롤링 하이햇이 들어간 140 BPM 트랩 비트 만들어 줘", "90 BPM 붐뱁 그루브 하나 줘", "더블 베이스 메탈 패턴 써 줘".
 - 어시스턴트가 키트를 고르고, 보이스 하나하나씩 패턴을 쓰고, 디테일까지 챙깁니다. 벨로시티 액센트, 라쳇, 플램, 그루브, 휴머나이즈까지요.
 - 그러고는 **링크 하나**를 건네줍니다. 링크를 열어 미리보기를 확인하고 패턴을 Drum AI로 가져오면 됩니다.
+- CLI가 설치되어 있고 같은 Mac에서 앱이 열려 있다면 링크를 건너뛸 수도 있습니다. 패턴을 앱에 곧바로 밀어 넣고 재생을 시작하므로, 무언가를 전달받기 전에 먼저 들어볼 수 있습니다.
 
 반대 방향도 됩니다. 앱에 이미 가지고 있는 패턴을 붙여 넣으면, 어시스턴트가 그것을 읽고 드럼이 어떻게 연주되는지 설명한 뒤 다시 손봐 줍니다.
 
@@ -52,7 +62,19 @@
 
 ### 이 스킬 설치하기
 
-Claude Code에서는 명령 두 줄이면 됩니다.
+**먼저 `drumai` 커맨드라인 도구를 설치하는 것을 권장합니다.** Homebrew 한 줄 설치이며, 서비스도 네트워크도 필요 없고, 어시스턴트가 선호하는 경로입니다.
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+세 줄이 모두 필요합니다. Homebrew 6 이상에서는 서드파티 tap의 formula를 신뢰 처리하기 전까지 불러오지 않으므로, 가운데 줄을 건너뛰면 `Refusing to load formula govo/tap/drumai from untrusted tap` 오류로 실패합니다. Homebrew 6 미만에는 `trust` 하위 명령이 없으므로 그 줄은 빼면 됩니다. Homebrew를 건너뛰고 싶다면 서명되고 공증된 바이너리가 [Releases](https://github.com/govo/drumai-cli/releases/latest)에 아키텍처별로 하나씩 있으며, CLI에는 Node.js가 필요 없습니다. `drumai version`으로 확인하세요.
+
+무언가를 설치하고 싶지 않다면 꼭 그럴 필요는 없습니다. 이 스킬은 로컬 설정이 전혀 없는 공개 PRESET 서비스를 통해서도 동작합니다. 어시스턴트는 CLI를 찾으면 CLI를 쓰고, 없으면 서비스로 폴백합니다. 선택할 필요가 전혀 없으며, 언제든 어시스턴트에게 설치를 안내해 달라고 요청할 수 있습니다.
+
+**그다음 스킬을 설치하세요.** Claude Code에서는 명령 두 줄이면 됩니다.
 
 ```
 /plugin marketplace add govo/drumak_skill
@@ -76,7 +98,7 @@ Claude Code에서는 명령 두 줄이면 됩니다.
 }
 ```
 
-**MCP 클라이언트가 아예 없나요?** 같은 서비스에 접근하는 셸 스크립트와 일반 JSON-RPC 경로가 있습니다. 요구 사항, 설정, 스크립트 인터페이스, 문제 해결은 [references/setup.md](references/setup.md)에 정리해 두었습니다.
+**MCP 클라이언트가 아예 없나요?** `drumai` CLI는 단독으로 동작하며, 같은 서비스에 접근하는 셸 스크립트와 일반 JSON-RPC 경로도 있습니다. 요구 사항, 설정, 설치, 문제 해결은 [references/setup.md](references/setup.md)에, CLI 전체 레퍼런스는 [references/cli.md](references/cli.md)에 정리해 두었습니다.
 
 ---
 
@@ -94,8 +116,9 @@ Claude Code에서는 명령 두 줄이면 됩니다.
 | 분리하는 스템 | 킥, 스네어, 하이햇, 심벌즈 |
 | App Store | <https://apps.apple.com/app/id6782609749> |
 | 공식 웹사이트 | <https://c1c1.online/drumanalyse/> |
-| 이 저장소 | AI 어시스턴트를 위한 Drum AI Preset MCP 스킬 |
+| 이 저장소 | AI 어시스턴트를 위한 Drum AI Preset 스킬 |
 | 스킬 서비스 | <https://c1c1.online/drumai_mcp> |
+| 커맨드라인 도구 | `brew tap govo/tap && brew trust govo/tap && brew install drumai` |
 | 출력 | 패턴이 담긴 가져오기 링크 하나 |
 
 ---
@@ -128,11 +151,27 @@ Drum AI Preset 스킬은 바로 이 저장소입니다. AI 어시스턴트를 Dr
 
 ### 이 스킬을 쓰려면 제 서버가 필요한가요?
 
-아니요. 이 스킬은 기본적으로 Drum AI PRESET 서비스의 공개 배포본을 가리키며, 설치 후 그대로 동작합니다. 직접 사본을 돌리는 것은 서비스를 대상으로 개발할 때만 유용합니다.
+아니요. `drumai` 커맨드라인 도구를 설치하면 서버가 전혀 관여하지 않습니다. 패턴이 사용자 컴퓨터에서 네트워크 없이 만들어집니다. 다른 경로는 기본적으로 Drum AI PRESET 서비스의 공개 배포본을 가리키며 설치 후 그대로 동작합니다. 서비스 사본을 직접 돌리는 것은 그것을 대상으로 개발할 때만 유용합니다.
+
+### 커맨드라인 도구가 있나요?
+
+네, 그리고 이 스킬을 쓰는 권장 방식입니다. `drumai`는 Homebrew로 설치하는 서명 및 공증된 단일 바이너리입니다.
+
+```bash
+brew tap govo/tap
+brew trust govo/tap
+brew install drumai
+```
+
+Node.js가 필요 없고, 오프라인에서도 동작하며, 19가지 패턴 구성 작업 전부와 앱과 직접 대화하는 명령을 모두 포괄합니다. 재생 시작과 정지, PRESET 또는 키트 전환, 현재 로드된 패턴 읽기, 링크를 거치지 않고 앱에 패턴 쓰기까지요. 서비스와 앱이 사용하는 것과 동일한 엔진이므로 패턴이 똑같습니다. 전체 레퍼런스: [references/cli.md](references/cli.md).
+
+### 어시스턴트가 CLI를 대신 설치해 줄 수 있나요?
+
+요청하고 동의한다면 세 줄의 Homebrew 명령을 실행할 수 있습니다. 사용자 컴퓨터에 소프트웨어를 설치하는 것은 사용자가 결정할 일이므로, 어시스턴트가 먼저 확인해야 합니다. 무언가를 설치하고 싶지 않아도 아무 문제 없습니다. 어시스턴트가 로컬 설정이 필요 없는 PRESET 서비스로 폴백할 뿐입니다.
 
 ### 어떤 AI 어시스턴트가 이 스킬을 쓸 수 있나요?
 
-Claude Code, Claude Desktop, Cursor를 비롯해 MCP를 지원하는 모든 클라이언트입니다. 가장 간단한 방법은 Claude Code인데, 이 저장소를 서비스를 자동으로 등록하는 플러그인으로 설치할 수 있기 때문입니다. MCP는 못 쓰지만 셸은 실행할 수 있는 클라이언트라면 함께 제공되는 스크립트를 대신 사용하면 됩니다. ChatGPT처럼 텍스트만 읽을 수 있는 어시스턴트라도 서비스 주소만 주어지면 패턴 작성 방식은 동일합니다.
+Claude Code, Claude Desktop, Cursor를 비롯해 MCP를 지원하는 모든 클라이언트입니다. 가장 간단한 방법은 Claude Code인데, 이 저장소를 서비스를 자동으로 등록하는 플러그인으로 설치할 수 있기 때문입니다. 셸을 실행할 수 있는 어시스턴트라면 MCP 지원도, 서비스도 필요 없는 `drumai` CLI를 대신 사용할 수 있습니다. 그것도 안 되면 함께 제공되는 스크립트가 같은 서비스에 접근합니다. ChatGPT처럼 텍스트만 읽을 수 있는 어시스턴트라도 서비스 주소만 주어지면 패턴 작성 방식은 동일합니다.
 
 ### 어떤 음악 스타일을 쓸 수 있나요?
 
@@ -179,12 +218,13 @@ drumai_skill/
 ├── .mcp.json                 # MCP server declaration
 ├── .env.example              # environment variable sample
 ├── references/               # detailed notes for the assistant
+│   ├── cli.md                # drumai 커맨드라인 도구 (선호하는 경로)
 │   ├── tools.md              # every tool: parameters, returns, error semantics
 │   ├── footguns.md           # writing traps and their correct forms
 │   ├── recipes.md            # end-to-end recipes with the call sequences
 │   ├── samples.md            # real exports drawn as wireframe scores
-│   ├── channels.md           # protocols for each way of reaching the service
-│   └── setup.md              # requirements, configuration, troubleshooting
+│   ├── channels.md           # 엔진에 도달하는 각 방식의 프로토콜
+│   └── setup.md              # 요구 사항, 설치, 설정, 문제 해결
 └── scripts/
     └── call.sh               # command-line access to the service
 ```
