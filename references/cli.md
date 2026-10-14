@@ -135,6 +135,8 @@ gives you the CLI spelling.
 | `render_wireframe` | `drumai wireframe --input "DHP2;..." \| --input @share.txt \| --input -` |
 | `render_kit` | `drumai call render_kit '{"name":"...","slots":[...]}'` — plus the app-driving `userkit` family (§9) |
 | — (CLI only, no MCP equivalent) | `drumai share <draftId> \| --draft <id> \| --spec @file.json [--text] [--out <file>]` |
+| — (CLI only, app-renders) | `drumai export midi <presetId> [-o path]` — see §10 |
+| — (CLI only, app-renders) | `drumai export wav <presetId> [-o path]` — see §10 |
 
 Everything in `SKILL.md` §4 about **how** to write a pattern applies unchanged — the grid strings,
 `hits`, velocities, ratchets, flams, `cellsPerQuarter`, and every footgun are properties of the
@@ -340,7 +342,42 @@ Points that bite:
 - `userkit list` / `show` / `edit` / `rename` read the app's container, so they need **Full Disk Access**
   (§8); `create` does not.
 
-## 10. Troubleshooting
+## 10. Exporting — MIDI / WAV files to disk
+
+When the user wants the beat (or its audio) handed to them as a real file on disk — so another AI can
+read it back, or so they can drop it into a DAW — `drumai export` is the CLI spelling. Two
+sub-commands:
+
+```bash
+drumai export midi <presetId> [-o|--output <path>] [--wait 10]   # PPQ=960 SMF, GM drum map
+drumai export wav  <presetId> [-o|--output <path>] [--wait 30]   # 44.1 kHz / float32 / stereo
+```
+
+Both render **inside the macOS Drum AI app** — the CLI does not know how to make a WAV on its own.
+It opens a `drumai://export?type=midi|wav&preset=<id>&path=<abs path>` deep link, and the app
+re-uses its own `MIDIFileExporter` / `AudioFileExporter` to write the file. After the deep link is
+sent the CLI **polls the target path** until the file exists and its size is stable across two
+reads (so a `.atomic` mid-write does not get mistaken for "done"); that is what `--wait` caps.
+
+A few points worth knowing:
+
+- **`<presetId>` is the PRESET id, not the draft id.** Run `drumai presets` (built-ins) or
+  `drumai draft list` (local drafts) to look it up. Both built-in and user PRESETs work; for a
+  draft you do not yet want in the app, `drumai apply --draft <id> --save --as "<name>"` first.
+- **Default output path is `./<presetId>.mid` (or `.wav`)** in the CLI's current working directory,
+  sanitized to `[A-Za-z0-9._-]`. Pass `-o /path/to/out.mid` for any other location; the parent
+  directory is `mkdir -p`-ed if missing.
+- **WAV is slow.** A typical 2-bar preset takes a few seconds; long loops or 16-bar presets can
+  run up to the `--wait` budget. `--wait 0` (`--no-wait`) skips the poll and reports immediately,
+  which is fine for a fire-and-forget script — the app keeps writing in the background.
+- **Failure surface is a toast in the app, not a CLI error.** If the id is unknown or the file
+  cannot be written, the app shows why and the CLI's poll times out (`verified: false`). Hand the
+  user the same hint that landed in the toast rather than guessing.
+- **There is no MCP equivalent.** `render_preset` returns links, not files; the MCP service has no
+  App to render through. Tell users who hit this on the MCP channel that the CLI is the only
+  path, or use the skill's payload + share text.
+
+## 11. Troubleshooting
 
 | Symptom | Cause |
 | --- | --- |

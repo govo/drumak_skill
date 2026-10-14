@@ -48,7 +48,10 @@ Check in order and take the **first one that works**:
    no service to reach, no address to configure, and no network needed at all to build a pattern. It
    is also a superset of the MCP tools: the same 20 operations, plus commands that drive the app
    directly (`play`, `preset`, `apply`, `live`), which no other channel can do — which makes it the
-   only channel that can deliver a beat into the app instead of a link (§6).
+   only channel that can deliver a beat into the app instead of a link (§6). It is also the only
+   channel that can hand a finished beat back to you as a real file on disk — `drumai export midi`
+   / `drumai export wav` write MIDI and WAV through the App's own exporters, so other AIs can read
+   the result back. Details in `references/cli.md` §10.
 
    ```bash
    drumai kits --style trap
@@ -183,6 +186,9 @@ Both columns do the same thing. Use the one matching your channel (see §1).
    user PRESET, then play; MCP or a link on                              --save --as "My Beat" \
    request → url + deeplink                                              --tags trap,hiphop
                                                                         drumai play   # drumai render <id> only if asked
+8. hand back as a real file (CLI only)          —                        drumai export midi <presetId> [-o path]
+                                                                        drumai export wav  <presetId> [-o path]
+                                                                        # renders via the App, see cli.md §10
 ```
 
 Steps 1-3 are read-only lookups; step 4 fixes the transport; step 5 is where the music happens.
@@ -503,6 +509,17 @@ and explain the paths:
 because the server already returns the finished `deeplink`. Do not paraphrase the payload, do not truncate
 either link, do not substitute "already generated", and do not write out a separate copy of the payload
 text. The link *is* the payload.
+
+**Handing the beat back as a real file (CLI only).** When the user — or another AI reading your
+work — needs the beat as an actual file on disk, not as a link or as a running pattern in the app,
+`drumai export midi <presetId> [-o path]` and `drumai export wav <presetId> [-o path]` are the
+right calls. The CLI opens a deep link that has the App render the file via its own
+`MIDIFileExporter` / `AudioFileExporter`, then polls the target path until the file size is stable.
+The default output is `./<presetId>.mid` (or `.wav`) in the CLI's working directory; `-o` overrides
+the location and `mkdir -p`s the parent. WAV is slower than MIDI (the App renders through
+`AVAudioEngine`), so the default `--wait` is 30 s for WAV and 10 s for MIDI; raise it for long
+loops. Details and footguns in `references/cli.md` §10. There is no MCP equivalent — the MCP
+service has no App to render through, and `render_preset` only returns links.
 
 **Kit links behave differently — say so when you hand them over.** `render_kit` returns the same pair of
 fields, but `drumai://kit-import` **creates the kit the moment it opens**: the app asks nothing and only
